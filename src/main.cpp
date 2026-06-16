@@ -7,7 +7,7 @@ constexpr int screenHeight = 480;
 constexpr float gravity = 1200.0f;
 constexpr float jump = -620.0f;
 constexpr float speed = 220.0f;
-constexpr float scroll = 180.0f;
+constexpr float scrollSpeed = 180.0f;
 
 void drawLight(Vector2 position, float radius, Color color)
 {
@@ -20,7 +20,7 @@ void drawLight(Vector2 position, float radius, Color color)
     );
 }
 
-void DrawSideArt(int screenW, int screenH)
+void drawSideArt(int screenW, int screenH)
 {
     for (int y = 0; y < screenH; y += 40)
     {
@@ -36,7 +36,7 @@ void toggleFullscreenWindow(){
     } else {
         ToggleFullscreen();
         SetWindowSize(screenWidth, screenHeight);
-    }
+    } 
 }
 
 
@@ -46,10 +46,16 @@ int main()
     // initial setup
     InitWindow(screenWidth, screenHeight, "endlessJumper");
     SetTargetFPS(60);
+    Texture2D background = LoadTexture("src/resources/background.png");
     float scale{1.0f};
     float offsetX{0.0f};
     float offsetY{0.0f};
-    Texture2D gameScreen = LoadTexture("src/resources/background.png");
+    float scoreHeight{0};
+
+    // player
+    Rectangle player{screenWidth / 2.0f - 16.0f, 360.0f, 32.0f, 32.0f};
+    float bgY = 0.0f;
+    float scrollSpeed = 120.0f;
 
     // camera
     GameCamera gameCamera;
@@ -68,11 +74,27 @@ int main()
         // first pass - game logic
         if(IsKeyPressed(KEY_F)) toggleFullscreenWindow();
 
+        // mouse for world
         Vector2 mouse = GetMousePosition();
         Vector2 virtualMouse = {
             (mouse.x - offsetX) / scale,
             (mouse.y - offsetY) / scale
         };
+
+        // player
+        float dt = GetFrameTime();
+        if (IsKeyDown(KEY_LEFT)) player.x -= speed * dt;
+        if (IsKeyDown(KEY_RIGHT)) player.x += speed * dt;
+
+        if(player.x > screenWidth + 32.0f) player.x = -64.0f;
+        if(player.x < -64.0f) player.x = screenWidth + 32.0f;
+
+        // move background downward and loop back
+        bgY += scrollSpeed * dt;
+        if (bgY >= screenHeight) bgY -= screenHeight;
+        
+        // 2 per second
+        scoreHeight += 2.0f * dt;
 
         // second pass - lightMap
         BeginTextureMode(lightMap);  
@@ -80,6 +102,7 @@ int main()
             BeginBlendMode(BLEND_ADDITIVE); 
                 //Vector2 screenPos = GetWorldToScreen2D({static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY())}, gameCamera.camera);
                 drawLight(virtualMouse, 150.0f, Color{255, 240, 200, 255});
+                drawLight({player.x + 16.0f, player.y + 16.0f}, 75.0f, Color{255, 191, 0, 255});
             EndBlendMode();
         EndTextureMode(); 
 
@@ -87,10 +110,13 @@ int main()
         BeginTextureMode(target);  
             ClearBackground(BLACK);
 
-            // 2D Mode - where game is drawn to virtual screen   
+            // 2D mode - where game is drawn to virtual screen   
             BeginMode2D(gameCamera.camera); 
                 ClearBackground(BLACK);
-                DrawTextureEx(gameScreen, {0.0f, 0.0f}, 0.0f, 1.0f, WHITE);   // TOP LEFT  
+                DrawTexture(background, 0, (int)bgY, WHITE);
+                DrawTexture(background, 0, (int)(bgY - screenHeight), WHITE);
+                DrawRectangle(player.x, player.y, player.width, player.height, RED);
+                DrawText(TextFormat("Height: %i", (int)scoreHeight), 20, 20, 20, YELLOW);
             EndMode2D();
 
             BeginBlendMode(BLEND_MULTIPLIED); 
@@ -102,8 +128,7 @@ int main()
         BeginDrawing();
             ClearBackground(BLACK);
 
-            // side art
-            DrawSideArt(GetScreenWidth(), GetScreenWidth());
+            drawSideArt(GetScreenWidth(), GetScreenWidth());
 
             scale = std::max(1.0f, std::min(static_cast<float>(GetRenderWidth())  / static_cast<float>(screenWidth),
                                             static_cast<float>(GetRenderHeight()) / static_cast<float>(screenHeight)));      
@@ -111,6 +136,7 @@ int main()
             offsetX = (static_cast<float>(GetRenderWidth()) - static_cast<float>(screenWidth) * scale) / 2.0f;
             offsetY = (static_cast<float>(GetRenderHeight()) - static_cast<float>(screenHeight) * scale) / 2.0f;
             
+            // final draw to screen
             DrawTexturePro(
                 target.texture,
                 { 0.0f, 0.0f, static_cast<float>(target.texture.width), -static_cast<float>(target.texture.height) },
@@ -119,7 +145,6 @@ int main()
                 0.0f,
                 WHITE
             );
-
         EndDrawing();
     }
 
