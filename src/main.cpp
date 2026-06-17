@@ -2,12 +2,16 @@
 #include <algorithm> 
 #include "gameCamera.h"
 
-constexpr int screenWidth = 270;
-constexpr int screenHeight = 480;
-constexpr float gravity = 1200.0f;
-constexpr float jump = -620.0f;
-constexpr float speed = 220.0f;
-constexpr float scrollSpeed = 180.0f;
+constexpr int screenWidth{270};
+constexpr int screenHeight{480};
+constexpr int startScreenWidth{540};
+constexpr int startScreenHeight{960};
+constexpr int halfScreenWidth{135};
+constexpr int halfScreenHeight{240};
+constexpr float gravity{1200.0f};
+constexpr float jump{-620.0f};
+constexpr float speed{220.0f};
+
 
 void drawLight(Vector2 position, float radius, Color color)
 {
@@ -35,17 +39,16 @@ void toggleFullscreenWindow(){
         ToggleFullscreen();
     } else {
         ToggleFullscreen();
-        SetWindowSize(screenWidth, screenHeight);
+        SetWindowSize(startScreenWidth, startScreenHeight);
     } 
 }
 
 
-int main()
-{
+int main(){
     
     // initial setup
-    InitWindow(screenWidth, screenHeight, "endlessJumper");
-    SetTargetFPS(60);
+    InitWindow(startScreenWidth, startScreenHeight, "endlessJumper");
+    SetTargetFPS(120);
     Texture2D background = LoadTexture("src/resources/background.png");
     float scale{1.0f};
     float offsetX{0.0f};
@@ -54,13 +57,15 @@ int main()
 
     // player
     Rectangle player{screenWidth / 2.0f - 16.0f, 360.0f, 32.0f, 32.0f};
-    float bgY = 0.0f;
-    float scrollSpeed = 120.0f;
+    float bgY{0.0f};
+    float scrollSpeed{120.0f};
+    float scoreSpeed{2.0f}; // 2 per second
 
     // camera
     GameCamera gameCamera;
     gameCamera.camera.zoom = 1.0f;
-    gameCamera.camera.offset = {135.0f, 240.0f};
+    gameCamera.camera.offset = {static_cast<float>(halfScreenWidth), 
+                                static_cast<float>(halfScreenHeight)};
 
     // light map
     RenderTexture2D lightMap = LoadRenderTexture(screenWidth, screenHeight);
@@ -68,8 +73,7 @@ int main()
     RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT); 
 
-    while (!WindowShouldClose())
-    {
+    while (!WindowShouldClose()){
 
         // first pass - game logic
         if(IsKeyPressed(KEY_F)) toggleFullscreenWindow();
@@ -85,26 +89,36 @@ int main()
         float dt = GetFrameTime();
         if (IsKeyDown(KEY_LEFT)) player.x -= speed * dt;
         if (IsKeyDown(KEY_RIGHT)) player.x += speed * dt;
+        if (IsKeyDown(KEY_UP)) player.y -= speed * dt;
+        if (IsKeyDown(KEY_DOWN)) player.y += speed * dt;
 
         if(player.x > screenWidth + 32.0f) player.x = -64.0f;
         if(player.x < -64.0f) player.x = screenWidth + 32.0f;
+
+        if(player.y < 96) {
+            scrollSpeed = 240.0f; 
+            scoreSpeed = 4.0f;
+        }
+        else {
+            scrollSpeed = 120.0f; 
+            scoreSpeed = 2.0f;
+        }
 
         // move background downward and loop back
         bgY += scrollSpeed * dt;
         if (bgY >= screenHeight) bgY -= screenHeight;
         
         // 2 per second
-        scoreHeight += 2.0f * dt;
+        scoreHeight += scoreSpeed * dt;
 
         // second pass - lightMap
-        BeginTextureMode(lightMap);  
+        BeginTextureMode(lightMap);
             ClearBackground(LIGHTGRAY); // screen tint (black for complete dark, etc.)
             BeginBlendMode(BLEND_ADDITIVE); 
-                //Vector2 screenPos = GetWorldToScreen2D({static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY())}, gameCamera.camera);
                 drawLight(virtualMouse, 150.0f, Color{255, 240, 200, 255});
                 drawLight({player.x + 16.0f, player.y + 16.0f}, 75.0f, Color{255, 191, 0, 255});
             EndBlendMode();
-        EndTextureMode(); 
+        EndTextureMode();
 
         // third pass - world space
         BeginTextureMode(target);  
@@ -115,8 +129,11 @@ int main()
                 ClearBackground(BLACK);
                 DrawTexture(background, 0, (int)bgY, WHITE);
                 DrawTexture(background, 0, (int)(bgY - screenHeight), WHITE);
+
                 DrawRectangle(player.x, player.y, player.width, player.height, RED);
+
                 DrawText(TextFormat("Height: %i", (int)scoreHeight), 20, 20, 20, YELLOW);
+                DrawText(TextFormat("FPS: %i", GetFPS()), 160, 20, 20, RED);
             EndMode2D();
 
             BeginBlendMode(BLEND_MULTIPLIED); 
