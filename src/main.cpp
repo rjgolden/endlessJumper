@@ -1,5 +1,7 @@
 #include <raylib.h>
 #include <algorithm> 
+#include <array>
+#include <iostream>
 #include "gameCamera.h"
 
 constexpr int screenWidth{270};
@@ -49,7 +51,15 @@ int main(){
     // initial setup
     InitWindow(startScreenWidth, startScreenHeight, "endlessJumper");
     SetTargetFPS(120);
-    Texture2D background = LoadTexture("src/resources/background.png");
+    std::array<Texture2D, 5> backgrounds = {
+        LoadTexture("src/resources/background.png"),
+        LoadTexture("src/resources/background2.png"),
+        LoadTexture("src/resources/background3.png"),
+        LoadTexture("src/resources/background4.png"),
+        LoadTexture("src/resources/background5.png"),
+    }; 
+    Texture2D* currentBackground = &backgrounds[0];
+    Texture2D* nextBackground = &backgrounds[1];
     float scale{1.0f};
     float offsetX{0.0f};
     float offsetY{0.0f};
@@ -58,8 +68,12 @@ int main(){
     // player
     Rectangle player{screenWidth / 2.0f - 16.0f, 360.0f, 32.0f, 32.0f};
     float bgY{0.0f};
+    float bgY2{-480.0f};
     float scrollSpeed{120.0f};
     float scoreSpeed{2.0f}; // 2 per second
+    bool changeBG{false};
+    int i{2};
+    int nextLevel{20};
 
     // camera
     GameCamera gameCamera;
@@ -107,9 +121,27 @@ int main(){
         // move background downward and loop back
         bgY += scrollSpeed * dt;
         if (bgY >= screenHeight) bgY -= screenHeight;
-        
+
+        if(changeBG){
+            bgY2 += scrollSpeed *dt;
+            if (bgY2 >= 0.0f) {
+                changeBG = false;
+                currentBackground = nextBackground;
+                nextBackground = &backgrounds[i];
+                i+=1;
+                if(i > 4) i = 0;
+                bgY2 = -480.0f;
+                std::cout << "background finished setting" << "\n";
+            }
+        }
         // 2 per second
         scoreHeight += scoreSpeed * dt;
+        if(static_cast<int>(scoreHeight) >= nextLevel) {
+            changeBG = true;
+            std::cout << nextLevel << "m\n";
+            nextLevel += 20;
+            std::cout << "next level: " << nextLevel << "\n";
+        }
 
         // second pass - lightMap
         BeginTextureMode(lightMap);
@@ -127,12 +159,18 @@ int main(){
             // 2D mode - where game is drawn to virtual screen   
             BeginMode2D(gameCamera.camera); 
                 ClearBackground(BLACK);
-                DrawTexture(background, 0, (int)bgY, WHITE);
-                DrawTexture(background, 0, (int)(bgY - screenHeight), WHITE);
+                DrawTexture(*currentBackground, 0, static_cast<int>(bgY), WHITE);
+                DrawTexture(*currentBackground, 0, (static_cast<int>(bgY) - screenHeight), WHITE);
+                
+                if(changeBG) {
+                    DrawTexture(*nextBackground, 0, bgY2, WHITE);
+                    DrawTexture(*nextBackground, 0, (static_cast<int>(bgY2) - screenHeight), WHITE);
+                }
 
                 DrawRectangle(player.x, player.y, player.width, player.height, RED);
 
-                DrawText(TextFormat("Height: %i", (int)scoreHeight), 20, 20, 20, YELLOW);
+                DrawText(TextFormat("Height: %i", static_cast<int>(scoreHeight)), 20, 20, 20, YELLOW);
+                
                 DrawText(TextFormat("FPS: %i", GetFPS()), 160, 20, 20, RED);
             EndMode2D();
 
