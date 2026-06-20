@@ -43,7 +43,7 @@ int main(){
     
     // initial setup
     InitWindow(Global::startScreenWidth, Global::startScreenHeight, "endlessJumper");
-    SetTargetFPS(120);
+    SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
     // screen
     float scale{1.0f};
@@ -87,7 +87,7 @@ int main(){
     for (size_t i{0}; i < platforms.size(); i++) {
         platforms[i].rect = {
             static_cast<float>(GetRandomValue(20, 160)), 
-            400.0f - static_cast<float>(i)*spacing*3,               
+            400.0f - (static_cast<float>(i)*spacing*3) - spacing,               
             static_cast<float>(GetRandomValue(50, 100)),                          
             20.0f                              
         };
@@ -161,6 +161,7 @@ int main(){
             nextLevel += 20;
         }
 
+        // platforms 
         for (Platform& platform : platforms) {
             platform.rect.y += scrollSpeed * dt;
                         
@@ -168,22 +169,22 @@ int main(){
             if (platform.rect.y > Global::screenHeight) {
                 platform.rect.x = static_cast<float>(GetRandomValue(20, 160));
                 platform.rect.y = nextPlatformY;
-                platform.rect.width = static_cast<float>(GetRandomValue(50, 100));
-                nextPlatformY -= spacing;
+                platform.rect.width = static_cast<float>(GetRandomValue(50, 100));     
             }    
 
             if (changeBackground) {
                 float transitionY = bgY2 + static_cast<float>(Global::screenHeight);
-                float platformCenterY = platform.rect.y + platform.rect.height * 0.5f;
-                if (platformCenterY < transitionY) platform.colorIndex = nextColorIndex;
+                float platformEdgeY = platform.rect.y + platform.rect.height;
+                if (platformEdgeY < transitionY) platform.colorIndex = nextColorIndex;
                 else platform.colorIndex = currentColorIndex;
             }
         }
+
         // second pass - lightMap
         BeginTextureMode(lightMap);
             ClearBackground(LIGHTGRAY); // screen tint (black for complete dark, etc.)
             BeginBlendMode(BLEND_ADDITIVE); 
-                drawLight(virtualMouse, 150.0f, Color{255, 240, 200, 255});
+                //drawLight(virtualMouse, 150.0f, Color{255, 240, 200, 255});
                 drawLight({player.x + 16.0f, player.y + 16.0f}, 75.0f, Color{255, 191, 0, 255});
             EndBlendMode();
         EndTextureMode();
