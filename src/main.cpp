@@ -65,7 +65,7 @@ int main(){
     float scoreHeight{0};
     float scrollSpeed{120.0f};
     float scoreSpeed{2.0f}; // 2 per second
-    bool changeBG{false};
+    bool changeBackground{false};
     int backgroundIndex{2}; // init 2 for next background
     int nextLevel{20};
 
@@ -81,19 +81,20 @@ int main(){
     // platforms
     int currentColorIndex{0};
     int nextColorIndex{1};
+    float spacing{60.0f};
     std::array<Color, 5> platformColors = {GRAY, DARKBLUE, YELLOW, PINK, BROWN};
     std::array<Platform, 10> platforms;
     for (size_t i{0}; i < platforms.size(); i++) {
         platforms[i].rect = {
             static_cast<float>(GetRandomValue(20, 160)), 
-            400.0f - static_cast<float>(i * 160),               
+            400.0f - static_cast<float>(i)*spacing*3,               
             static_cast<float>(GetRandomValue(50, 100)),                          
             20.0f                              
         };
         platforms[i].colorIndex = 0;
     }
 
-    float nextPlatformY = platforms.back().rect.y - 80.0f;
+    float nextPlatformY = platforms.back().rect.y - spacing;
 
     // light map
     RenderTexture2D lightMap = LoadRenderTexture(Global::screenWidth, Global::screenHeight);
@@ -137,10 +138,10 @@ int main(){
         if (bgY >= Global::screenHeight) bgY -= Global::screenHeight;
 
         // incoming background
-        if(changeBG){
+        if(changeBackground){
             bgY2 += scrollSpeed *dt;
             if (bgY2 >= 0.0f) {
-                changeBG = false;
+                changeBackground = false;
                 currentBackground = nextBackground;
                 nextBackground = &backgrounds[backgroundIndex];
 
@@ -155,8 +156,8 @@ int main(){
 
         // change level based on height/score
         scoreHeight += scoreSpeed * dt;
-        if(!changeBG && static_cast<int>(scoreHeight) >= nextLevel) {
-            changeBG = true;
+        if(!changeBackground && static_cast<int>(scoreHeight) >= nextLevel) {
+            changeBackground = true;
             nextLevel += 20;
         }
 
@@ -167,10 +168,11 @@ int main(){
             if (platform.rect.y > Global::screenHeight) {
                 platform.rect.x = static_cast<float>(GetRandomValue(20, 160));
                 platform.rect.y = nextPlatformY;
-                nextPlatformY -= 80.0f;
+                platform.rect.width = static_cast<float>(GetRandomValue(50, 100));
+                nextPlatformY -= spacing;
             }    
 
-            if (changeBG) {
+            if (changeBackground) {
                 float transitionY = bgY2 + static_cast<float>(Global::screenHeight);
                 float platformCenterY = platform.rect.y + platform.rect.height * 0.5f;
                 if (platformCenterY < transitionY) platform.colorIndex = nextColorIndex;
@@ -196,7 +198,7 @@ int main(){
                 DrawTexture(*currentBackground, 0, static_cast<int>(bgY), WHITE);
                 DrawTexture(*currentBackground, 0, (static_cast<int>(bgY) - Global::screenHeight), WHITE);
                 
-                if(changeBG) {
+                if(changeBackground) {
                     DrawTexture(*nextBackground, 0, static_cast<int>(bgY2), WHITE);
                     DrawTexture(*nextBackground, 0, (static_cast<int>(bgY2) - Global::screenHeight), WHITE);
                 }
