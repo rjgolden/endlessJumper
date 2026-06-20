@@ -1,7 +1,6 @@
 #include <raylib.h>
 #include <algorithm> 
 #include <array>
-#include <vector>
 #include <iostream>
 #include "gameCamera.h"
 #include "global.h"
@@ -34,6 +33,11 @@ void toggleFullscreenWindow(){
         SetWindowSize(Global::startScreenWidth, Global::startScreenHeight);
     } 
 }
+
+struct Platform {
+    Rectangle rect;
+    int colorIndex;
+};
 
 int main(){
     
@@ -75,18 +79,21 @@ int main(){
                                 static_cast<float>(Global::halfScreenHeight)};
 
     // platforms
-    std::vector<Rectangle> platforms;
-    float nextPlatformY{500};
-    for (int i = 0; i < 10; i++) {
-        platforms.push_back({
-            static_cast<float>(GetRandomValue(20, 160)), // x
-            400.0f - static_cast<float>(i * 160),               // y
-            static_cast<float>(GetRandomValue(50, 100)),                            // width
-            20.0f                              // height
-        });
+    int currentColorIndex{0};
+    int nextColorIndex{1};
+    std::array<Color, 5> platformColors = {GRAY, DARKBLUE, YELLOW, PINK, BROWN};
+    std::array<Platform, 10> platforms;
+    for (size_t i{0}; i < platforms.size(); i++) {
+        platforms[i].rect = {
+            static_cast<float>(GetRandomValue(20, 160)), 
+            400.0f - static_cast<float>(i * 160),               
+            static_cast<float>(GetRandomValue(50, 100)),                          
+            20.0f                              
+        };
+        platforms[i].colorIndex = 0;
     }
 
-    nextPlatformY = platforms.back().y - 80.0f;
+    float nextPlatformY = platforms.back().rect.y - 80.0f;
 
     // light map
     RenderTexture2D lightMap = LoadRenderTexture(Global::screenWidth, Global::screenHeight);
@@ -97,7 +104,7 @@ int main(){
     while (!WindowShouldClose()){
 
         // first pass - game logic
-        if(IsKeyPressed(KEY_F)) toggleFullscreenWindow();
+        if(IsKeyPressed(KEY_F11)) toggleFullscreenWindow();
 
         // mouse for world
         Vector2 mouse = GetMousePosition();
@@ -125,7 +132,6 @@ int main(){
             scoreSpeed = 2.0f;
         }
 
-        // move background downward and loop back
         // current background
         bgY += scrollSpeed * dt;
         if (bgY >= Global::screenHeight) bgY -= Global::screenHeight;
@@ -137,20 +143,40 @@ int main(){
                 changeBG = false;
                 currentBackground = nextBackground;
                 nextBackground = &backgrounds[backgroundIndex];
+
+                currentColorIndex = nextColorIndex;
+                nextColorIndex = backgroundIndex;
+
                 backgroundIndex++;
                 if(backgroundIndex > 4) backgroundIndex = 0; // loop through backgrounds (temp for now)
-                bgY2 = -480.0f; // reset position for next level change
+                bgY2 = -static_cast<float>(Global::screenHeight); // reset position for next level change
             }
         }
 
+        // change level based on height/score
         scoreHeight += scoreSpeed * dt;
-        if(static_cast<int>(scoreHeight) >= nextLevel) {
+        if(!changeBG && static_cast<int>(scoreHeight) >= nextLevel) {
             changeBG = true;
-            std::cout << nextLevel << "m\n";
             nextLevel += 20;
-            std::cout << "next level: " << nextLevel << "\n";
         }
 
+        for (Platform& platform : platforms) {
+            platform.rect.y += scrollSpeed * dt;
+                        
+            // if platform is below the camera view
+            if (platform.rect.y > Global::screenHeight) {
+                platform.rect.x = static_cast<float>(GetRandomValue(20, 160));
+                platform.rect.y = nextPlatformY;
+                nextPlatformY -= 80.0f;
+            }    
+
+            if (changeBG) {
+                float transitionY = bgY2 + static_cast<float>(Global::screenHeight);
+                float platformCenterY = platform.rect.y + platform.rect.height * 0.5f;
+                if (platformCenterY < transitionY) platform.colorIndex = nextColorIndex;
+                else platform.colorIndex = currentColorIndex;
+            }
+        }
         // second pass - lightMap
         BeginTextureMode(lightMap);
             ClearBackground(LIGHTGRAY); // screen tint (black for complete dark, etc.)
@@ -174,30 +200,16 @@ int main(){
                     DrawTexture(*nextBackground, 0, static_cast<int>(bgY2), WHITE);
                     DrawTexture(*nextBackground, 0, (static_cast<int>(bgY2) - Global::screenHeight), WHITE);
                 }
-
+    
+                for (Platform& platform : platforms) {
+                    DrawRectangleRec(platform.rect, platformColors[platform.colorIndex]);
+                }
+                
                 DrawRectangle(player.x, player.y, player.width, player.height, RED);
-            
-                for (Rectangle& platform : platforms)
-                {
-                    // If platform is below the camera view
-                    if (platform.y > Global::screenHeight)
-                    {
-                        // Move it above the screen
-                        platform.x = static_cast<float>(GetRandomValue(20, 160));
-                        platform.y = nextPlatformY;
-
-                        nextPlatformY -= 80.0f;
-                    }
-                }
-
-                for (Rectangle& platform : platforms) {
-                    platform.y += scrollSpeed * dt;
-                    DrawRectangleRec(platform, DARKGREEN);
-                }
 
                 DrawText(TextFormat("Height: %i", static_cast<int>(scoreHeight)), 20, 20, 20, YELLOW);
-                
                 DrawText(TextFormat("FPS: %i", GetFPS()), 160, 20, 20, RED);
+
             EndMode2D();
 
             BeginBlendMode(BLEND_MULTIPLIED); 
