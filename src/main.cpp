@@ -112,7 +112,7 @@ int main(){
     int nextColorIndex{1};
     float spacing{30.0f};
     std::array<Color, 5> platformColors = {GRAY, DARKBLUE, YELLOW, PINK, BROWN};
-    std::array<Platform, 10> platforms;
+    std::array<Platform, 20> platforms;
     for (size_t i{0}; i < platforms.size(); i++) {
         platforms[i].rect = {
             static_cast<float>(GetRandomValue(10, 170)), 
@@ -144,6 +144,7 @@ int main(){
             screenTint = LIGHTGRAY;
             currentBackground = &backgrounds[0];
             nextBackground = &backgrounds[1];
+            backgroundIndex = 1;
             currentColorIndex = 0;
             nextColorIndex = 1;
             bgY = 0.0f;
@@ -168,10 +169,6 @@ int main(){
             if(player.x < -64.0f) player.x = Global::screenWidth + 32.0f;
 
             if(player.y < 96) {
-                scrollSpeed = 360.0f; 
-                scoreSpeed = 6.0f;
-            }
-            else if(player.y < 240) {
                 scrollSpeed = 240.0f; 
                 scoreSpeed = 4.0f;
             }
@@ -299,7 +296,7 @@ int main(){
                 DrawText(TextFormat("Height: %i", static_cast<int>(scoreHeight)), 20, 20, 20, YELLOW);
                 DrawText(TextFormat("FPS: %i", GetFPS()), 160, 20, 20, RED);
                 if(gameOver) {
-                    screenTint = RED;
+                    screenTint = MAROON;
                     DrawText("GAME OVER!", 70.0f, 240.0f, 20, BLACK); 
                 }
 
