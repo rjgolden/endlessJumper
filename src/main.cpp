@@ -62,7 +62,7 @@ int main(){
     float scrollSpeed{120.0f};
     float scoreSpeed{2.0f}; // 2 per second
     bool changeBG{false};
-    int backgroundIndex{2}; // next background
+    int backgroundIndex{2}; // init 2 for next background
     int nextLevel{20};
 
     // player
@@ -73,6 +73,20 @@ int main(){
     gameCamera.camera.zoom = 1.0f;
     gameCamera.camera.offset = {static_cast<float>(Global::halfScreenWidth), 
                                 static_cast<float>(Global::halfScreenHeight)};
+
+    // platforms
+    std::vector<Rectangle> platforms;
+    float nextPlatformY{500};
+    for (int i = 0; i < 10; i++) {
+        platforms.push_back({
+            static_cast<float>(GetRandomValue(20, 160)), // x
+            400.0f - static_cast<float>(i * 160),               // y
+            static_cast<float>(GetRandomValue(50, 100)),                            // width
+            20.0f                              // height
+        });
+    }
+
+    nextPlatformY = platforms.back().y - 80.0f;
 
     // light map
     RenderTexture2D lightMap = LoadRenderTexture(Global::screenWidth, Global::screenHeight);
@@ -162,6 +176,24 @@ int main(){
                 }
 
                 DrawRectangle(player.x, player.y, player.width, player.height, RED);
+            
+                for (Rectangle& platform : platforms)
+                {
+                    // If platform is below the camera view
+                    if (platform.y > Global::screenHeight)
+                    {
+                        // Move it above the screen
+                        platform.x = static_cast<float>(GetRandomValue(20, 160));
+                        platform.y = nextPlatformY;
+
+                        nextPlatformY -= 80.0f;
+                    }
+                }
+
+                for (Rectangle& platform : platforms) {
+                    platform.y += scrollSpeed * dt;
+                    DrawRectangleRec(platform, DARKGREEN);
+                }
 
                 DrawText(TextFormat("Height: %i", static_cast<int>(scoreHeight)), 20, 20, 20, YELLOW);
                 
