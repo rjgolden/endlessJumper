@@ -4,9 +4,9 @@
 #include <iostream>
 #include "gameCamera.h"
 #include "global.h"
+#include "animation.h"
 
-void drawLight(Vector2 position, float radius, Color color)
-{
+void drawLight(Vector2 position, float radius, Color color) {
     DrawCircleGradient(
         static_cast<int>(position.x),
         static_cast<int>(position.y),
@@ -15,8 +15,7 @@ void drawLight(Vector2 position, float radius, Color color)
         BLANK );
 }
 
-void drawSideArt(int screenW, int screenH)
-{
+void drawSideArt(int screenW, int screenH) {
     static Texture2D sideArt = LoadTexture("src/resources/sideArt.png");
     DrawTexturePro( sideArt, 
                     {0.0f, 0.0f, static_cast<float>(screenW), static_cast<float>(screenH)}, 
@@ -95,6 +94,8 @@ int main(){
     // player
     Rectangle player{Global::screenWidth / 2.0f - 16.0f, 360.0f, 32.0f, 32.0f};
     Texture2D playerTexture = LoadTexture("src/resources/player.png"); 
+    Texture2D fireAnimation = LoadTexture("src/resources/fireSpriteAnimation.png");
+    Animation fire(fireAnimation, 6, Global::screenWidth / 2.0f - 16.0f, 360.0f, true);
     bool inAir{true};
     float jumpVelocity{0.0f};
     float gravity{1500.0f};
@@ -167,6 +168,8 @@ int main(){
 
             if(player.x > Global::screenWidth + 32.0f) player.x = -64.0f;
             if(player.x < -64.0f) player.x = Global::screenWidth + 32.0f;
+
+            fire.setPosition({player.x, player.y -  16.0f});
 
             if(player.y < 96) {
                 scrollSpeed = 240.0f; 
@@ -292,6 +295,7 @@ int main(){
                 }
                 
                 DrawTexture(playerTexture, player.x, player.y, WHITE);
+                fire.updateSprite();
 
                 DrawText(TextFormat("Height: %i", static_cast<int>(scoreHeight)), 20, 20, 20, YELLOW);
                 DrawText(TextFormat("FPS: %i", GetFPS()), 160, 20, 20, RED);
