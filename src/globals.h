@@ -8,6 +8,5 @@ namespace Global {
     constexpr int startScreenHeight{960};
     constexpr int halfScreenWidth{135};
     constexpr int halfScreenHeight{240};
-    constexpr float playerSpeed{220.0f};
 
 }

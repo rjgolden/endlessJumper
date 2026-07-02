@@ -31,6 +31,8 @@ class Animation {
         Rectangle getHitboxRect();
 
         // setters
+        void setPositionX(float positionX);
+        void setPositionY(float positionY);
         void setPosition(Vector2 position);
         void setRotation(float rotation);
         void setHitboxDimensions(Vector2 dimensions);

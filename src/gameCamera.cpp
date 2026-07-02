@@ -3,7 +3,7 @@
 GameCamera::GameCamera(){
 
     camera = {0};
-    Vector2 middle ={ 270.0f/2.0f, 480.0f/2.0f };
+    Vector2 middle ={ Global::halfScreenWidth, Global::halfScreenHeight };
     camera.target = middle;
     camera.offset = middle;
     camera.rotation = 0.0f;

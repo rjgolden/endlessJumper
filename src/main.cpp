@@ -3,60 +3,11 @@
 #include <array>
 #include <iostream>
 #include "gameCamera.h"
-#include "global.h"
+#include "globals.h"
 #include "animation.h"
-
-void drawLight(Vector2 position, float radius, Color color) {
-    DrawCircleGradient(
-        static_cast<int>(position.x),
-        static_cast<int>(position.y),
-        radius,
-        color,
-        BLANK );
-}
-
-void drawSideArt(int screenW, int screenH) {
-    static Texture2D sideArt = LoadTexture("src/resources/sideArt.png");
-    DrawTexturePro( sideArt, 
-                    {0.0f, 0.0f, static_cast<float>(screenW), static_cast<float>(screenH)}, 
-                    {0.0f, 0.0f, static_cast<float>(sideArt.width), static_cast<float>(sideArt.width)}, 
-                    {0.0f, 0.0f}, 
-                    0.0f, 
-                    WHITE);
-    /*for (int y = 0; y < screenH; y += 40)s
-    {
-        DrawRectangle(0, y, screenW, 20, RED);
-        DrawRectangle(0, y+20, screenW, 20, WHITE);
-    }*/
-}
-
-void toggleFullscreenWindow(){
-    if (!IsWindowFullscreen()) {
-        int monitor = GetCurrentMonitor();
-        SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
-        ToggleFullscreen();
-    } else {
-        ToggleFullscreen();
-        SetWindowSize(Global::startScreenWidth, Global::startScreenHeight);
-    } 
-}
-
-void resetPlatforms(auto& platforms){
-    for (size_t i{0}; i < platforms.size(); i++) {
-        platforms[i].rect = {
-            static_cast<float>(GetRandomValue(10, 170)), 
-            400.0f - (static_cast<float>(i)*30.0f*3) - 30.0f,               
-            static_cast<float>(GetRandomValue(20, 70)),                          
-            10.0f                              
-        };
-        platforms[i].colorIndex = 0;
-    }
-}
-
-struct Platform {
-    Rectangle rect;
-    int colorIndex;
-};
+#include "player.h"
+#include "functions.h"
+#include "platforms.h"
 
 int main(){
     
@@ -92,15 +43,13 @@ int main(){
     int nextLevel{20};
 
     // player
-    Rectangle player{Global::screenWidth / 2.0f - 16.0f, 360.0f, 32.0f, 32.0f};
-    Texture2D playerTexture = LoadTexture("src/resources/player.png"); 
-    Texture2D fireAnimation = LoadTexture("src/resources/fireSpriteAnimation.png");
-    Animation fire(fireAnimation, 6, Global::screenWidth / 2.0f - 16.0f, 360.0f, true);
     bool inAir{true};
     float jumpVelocity{0.0f};
     float gravity{1500.0f};
     bool onPlatform{false};
     bool gameOver{false};
+
+    Player classPlayer;
 
     // camera
     GameCamera gameCamera;
@@ -111,19 +60,9 @@ int main(){
     // platforms
     int currentColorIndex{0};
     int nextColorIndex{1};
-    float spacing{30.0f};
     std::array<Color, 5> platformColors = {GRAY, DARKBLUE, YELLOW, PINK, BROWN};
-    std::array<Platform, 20> platforms;
-    for (size_t i{0}; i < platforms.size(); i++) {
-        platforms[i].rect = {
-            static_cast<float>(GetRandomValue(10, 170)), 
-            400.0f - (static_cast<float>(i)*spacing*3) - spacing,               
-            static_cast<float>(GetRandomValue(20, 70)),                          
-            10.0f                              
-        };
-        platforms[i].colorIndex = 0;
-    }
-    float nextPlatformY = platforms.back().rect.y - spacing;
+    Platforms platforms;
+    float nextPlatformY = platforms.platformArr.back().rect.y - 30.0f;
 
     // light map
     RenderTexture2D lightMap = LoadRenderTexture(Global::screenWidth, Global::screenHeight);
@@ -135,10 +74,10 @@ int main(){
     while (!WindowShouldClose()){
 
         // first pass - game logic
-        if(IsKeyPressed(KEY_F11)) toggleFullscreenWindow();
+        if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
 
         if(IsKeyPressed(KEY_R) && gameOver) {
-            resetPlatforms(platforms);
+            platforms.resetPlatforms();
             scoreHeight = 0;
             isScrolling = false;
             gameOver = false;
@@ -163,15 +102,8 @@ int main(){
         if(!gameOver){
             // player
             float dt = GetFrameTime();
-            if (IsKeyDown(KEY_A)) player.x -= Global::playerSpeed * dt;
-            if (IsKeyDown(KEY_D)) player.x += Global::playerSpeed * dt;
-
-            if(player.x > Global::screenWidth + 32.0f) player.x = -64.0f;
-            if(player.x < -64.0f) player.x = Global::screenWidth + 32.0f;
-
-            fire.setPosition({player.x, player.y -  16.0f});
-
-            if(player.y < 96) {
+           
+            if(classPlayer.getPositionY() < 96) {
                 scrollSpeed = 240.0f; 
                 scoreSpeed = 4.0f;
             }
@@ -186,13 +118,13 @@ int main(){
                 isScrolling = true;
             }
 
-            float previousPlayerY = player.y;
+            float previousPlayerY = classPlayer.getPositionY();
             if(inAir || onPlatform) jumpVelocity += gravity * dt;
-            player.y += jumpVelocity * dt;
+            classPlayer.setPositionY(classPlayer.getPositionY() + jumpVelocity * dt);
 
             if(!isScrolling){
-                if(player.y >= Global::screenHeight - 32.0f){
-                    player.y = Global::screenHeight - 32.0f;
+                if(classPlayer.getPositionY() >= Global::screenHeight - 32.0f){
+                    classPlayer.setPositionY(Global::screenHeight - 32.0f);
                     inAir = false;
                     jumpVelocity = 0.0f;
                 }
@@ -227,14 +159,16 @@ int main(){
                     nextLevel += 20;
                 }
 
-                if(player.y >= Global::screenHeight + 128.0f){
+                if(classPlayer.getPositionY() >= Global::screenHeight + 128.0f){
                     gameOver = true;
                     inAir = false;
                     jumpVelocity = 0.0f;
                 }
 
+                if(inAir) classPlayer.setState(3);
+
                 // platforms 
-                for (Platform& platform : platforms) {
+                for (auto& platform : platforms.platformArr) {
                     platform.rect.y += scrollSpeed * dt;
                                 
                     // if platform is below the camera view
@@ -252,8 +186,8 @@ int main(){
                     } 
 
                     float platformTop = platform.rect.y;
-                    if (jumpVelocity > 0.0f && previousPlayerY + player.height <= platformTop && player.y + player.height >= platformTop && CheckCollisionRecs(player, platform.rect)){
-                            player.y = platform.rect.y - player.height;
+                    if (jumpVelocity > 0.0f && previousPlayerY + 32.0f <= platformTop && classPlayer.getPositionY() + 32.0f >= platformTop && CheckCollisionRecs(classPlayer.getHitboxRect(), platform.rect)){
+                            classPlayer.setPositionY(platform.rect.y - 32.0f);
                             jumpVelocity = 0.0f;
                             inAir = false;
                             onPlatform = true;
@@ -268,7 +202,7 @@ int main(){
             ClearBackground(screenTint); // screen tint (black for complete dark, etc.)
             BeginBlendMode(BLEND_ADDITIVE); 
                 //drawLight(virtualMouse, 150.0f, Color{255, 240, 200, 255});
-                drawLight({player.x + 16.0f, player.y + 16.0f}, 75.0f, Color{255, 191, 0, 255});
+                Functions::drawLight({classPlayer.getPositionX() + 16.0f, classPlayer.getPositionY() + 16.0f}, 75.0f, Color{255, 191, 0, 255});
             EndBlendMode();
         EndTextureMode();
 
@@ -287,15 +221,15 @@ int main(){
                     DrawTexture(*nextBackground, 0, (static_cast<int>(bgY2) - Global::screenHeight), WHITE);
                 }
     
-                for (Platform& platform : platforms) {
-                    DrawRectangleRec(platform.rect, platformColors[platform.colorIndex]);
-                    if(CheckCollisionRecs(platform.rect, player)) {
+                for (auto& platform : platforms.platformArr) {
+                    DrawRectangleLinesEx(platform.rect, 2.0f, platformColors[platform.colorIndex]);
+                    if(CheckCollisionRecs(platform.rect, classPlayer.getHitboxRect())) {
                         DrawRectangleLinesEx(platform.rect, 1.0f, RED);  
                     }  
                 }
                 
-                DrawTexture(playerTexture, player.x, player.y, WHITE);
-                fire.updateSprite();
+                //DrawTexture(playerTexture, player.x, player.y, WHITE);
+                classPlayer.updateSprite();
 
                 DrawText(TextFormat("Height: %i", static_cast<int>(scoreHeight)), 20, 20, 20, YELLOW);
                 DrawText(TextFormat("FPS: %i", GetFPS()), 160, 20, 20, RED);
@@ -315,7 +249,7 @@ int main(){
         BeginDrawing();
             ClearBackground(BLACK);
 
-            drawSideArt(GetScreenWidth(), GetScreenWidth());
+            Functions::drawSideArt(GetScreenWidth(), GetScreenWidth());
 
             scale = std::max(1.0f, std::min(static_cast<float>(GetRenderWidth())  / static_cast<float>(Global::screenWidth),
                                             static_cast<float>(GetRenderHeight()) / static_cast<float>(Global::screenHeight)));      
