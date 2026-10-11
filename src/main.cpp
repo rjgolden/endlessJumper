@@ -107,12 +107,14 @@ int main()
                 { 0.0f, 0.0f },
                 0.0f,
                 WHITE );
+
             // UI (temp)
             std::string scoreString = std::to_string(static_cast<int>(score));
             const char* scoreConstChar = scoreString.c_str();
             DrawText("Score: ", 20 * scale, 20, 20 * scale, YELLOW);
             DrawText(scoreConstChar, 100 * scale, 20, 20 * scale, YELLOW);
             DrawText("F11 for Fullscreen", 10, 80, 20 * scale, YELLOW);
+            
         // }
         EndDrawing();
     }
