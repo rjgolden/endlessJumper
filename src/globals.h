@@ -13,8 +13,8 @@ namespace Globals {
     constexpr float airAcceleration{0.6f};
     constexpr float airFriction{0.85f};
 
-    constexpr float wallRiseFriction{1.02f};
-    constexpr float wallFallFriction{0.93f};
+    constexpr float wallRiseFriction{1.00f};
+    constexpr float wallFallFriction{0.85f};
 
     constexpr float movementPressDelay{5.0f / referenceFPS}; // 5 frames/sec
     constexpr float maxJumpHoldTime{10.0f / referenceFPS};

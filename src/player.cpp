@@ -221,7 +221,7 @@ void Player::checkCollisions(std::array<Globals::Platform, 20>& platforms){
     {
 
         if(platform.blocking) continue;
-        
+
         float platformTop = platform.rect.y;
         float playerBottom = position.y + halfHeight;
 
@@ -237,6 +237,8 @@ void Player::checkCollisions(std::array<Globals::Platform, 20>& platforms){
             velocity.y = 0.0f;
             isOnGround = true;
             isJumping = false;
+            leftWallJumped = true;
+            rightWallJumped = true;
             platform.onPlatform = true;
             break;
         }
