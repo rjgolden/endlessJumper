@@ -3,7 +3,6 @@
 #include <array>
 #include <vector>
 #include <algorithm>
-#include <cmath>
 #include "raylib.h"
 #include "raymath.h"
 #include "globals.h"

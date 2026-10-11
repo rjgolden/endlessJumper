@@ -15,13 +15,14 @@ void Player::update(std::array<Globals::Platform, 20>& platforms){
 }
 
 void Player::updateMovement(){
+
     float deltaTime = GetFrameTime();
     // Avoid a giant physics step if the window hangs, gets dragged, debugger pauses, etc.
     deltaTime = std::min(deltaTime, 0.05f);
     // At 60 FPS: deltaTime = 1/60, frameScale = 1
     const float frameScale = deltaTime * Globals::referenceFPS;
-
     Vector2 appliedForces = {0.0f, Globals::gravity};
+
     // ================== //
     // INPUT              //
     // ================== //
@@ -33,23 +34,11 @@ void Player::updateMovement(){
     // L+R KEY HOLD TIMES //
     // ================== //
 
-    if (movingRight)
-    {
-        rightHoldTime += deltaTime;
-    }
-    else
-    {
-        rightHoldTime = 0.0f;
-    }
+    if (movingRight) rightHoldTime += deltaTime;
+    else rightHoldTime = 0.0f;
 
-    if (movingLeft)
-    {
-        leftHoldTime += deltaTime;
-    }
-    else
-    {
-        leftHoldTime = 0.0f;
-    }
+    if (movingLeft) leftHoldTime += deltaTime;
+    else leftHoldTime = 0.0f;
 
     // ================== //
     // JUMP INPUT         //
@@ -65,16 +54,9 @@ void Player::updateMovement(){
         }
     }
 
-    if (jumpHeld && jumpDown)
-    {
-        jumpHoldTime += deltaTime;
-    }
-
-    if (jumpReleased)
-    {
-        jumpHeld = false;
-    }
-
+    if (jumpHeld && jumpDown) jumpHoldTime += deltaTime;
+    if (jumpReleased)jumpHeld = false;
+    
     // ================== //
     // INITIAL JUMP       //
     // ================== //
@@ -83,9 +65,7 @@ void Player::updateMovement(){
     {
         // Ground jump
         if (!isJumping && !isGlidingLeft && !isGlidingRight)
-        {
             velocity.y = -6.0f;
-        }
 
         // Left wall jump
         else if (isGlidingLeft  && leftWallJumped)
@@ -95,14 +75,8 @@ void Player::updateMovement(){
             rightWallJumped = true;
             maxHorizontalVelocity = 999.0f;
 
-            if (movingRight)
-            {
-                velocity.x += 12.0f;
-            }
-            else
-            {
-                velocity.x += 12.0f;
-            }
+            if (movingRight) velocity.x += 12.0f;
+            else velocity.x += 12.0f;
         }
 
         // Right wall jump
@@ -113,14 +87,8 @@ void Player::updateMovement(){
             leftWallJumped = true;
             maxHorizontalVelocity = 999.0f;
 
-            if (movingLeft)
-            {
-                velocity.x -= 12.0f;
-            }
-            else
-            {
-                velocity.x -= 12.0f;
-            }
+            if (movingLeft) velocity.x -= 12.0f;
+            else velocity.x -= 12.0f;
         }
 
         isJumping = true;
@@ -249,8 +217,11 @@ void Player::checkCollisions(std::array<Globals::Platform, 20>& platforms){
     // PLATFORM COLLISION //
     // ================== //
 
-    for (const auto& platform : platforms)
+    for (auto& platform : platforms)
     {
+
+        if(platform.blocking) continue;
+        
         float platformTop = platform.rect.y;
         float playerBottom = position.y + halfHeight;
 
@@ -266,8 +237,10 @@ void Player::checkCollisions(std::array<Globals::Platform, 20>& platforms){
             velocity.y = 0.0f;
             isOnGround = true;
             isJumping = false;
+            platform.onPlatform = true;
             break;
         }
+        if(!isOnGround) platform.onPlatform = false;
     }
 
     // ================== //

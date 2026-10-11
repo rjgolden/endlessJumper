@@ -17,6 +17,7 @@ int main()
     Player player;
     Platforms platforms;
     GameCamera gameCamera;
+    float score{0.0f};
 
     float scale{1.0f};
     float offsetX{0.0f};
@@ -32,8 +33,9 @@ int main()
         // ======================================================= //
         // FIRST PASS - GAME LOGIC                                 //
         // ======================================================= //
+        
         if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
-        if (IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
+        if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
         player.update(platforms.platformArr);
 
         // ======================================================== //
@@ -64,6 +66,7 @@ int main()
                 Functions::drawBackground();
                 platforms.scrollPlatforms();
                 platforms.drawPlatforms();
+                score +=  1.0f / 10.0f;
                 player.drawPlayer();
                 player.drawBullets();
                 
@@ -104,6 +107,11 @@ int main()
                 { 0.0f, 0.0f },
                 0.0f,
                 WHITE );
+                // UI (temp)
+            std::string scoreString = std::to_string(static_cast<int>(score));
+            const char* scoreConstChar = scoreString.c_str();
+            DrawText("Score: ", 20 * scale, 20, 20 * scale, YELLOW);
+            DrawText(scoreConstChar, 100 * scale, 20, 20 * scale, YELLOW);
         // }
         EndDrawing();
     }

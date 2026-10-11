@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <algorithm>
 #include <raylib.h>
 #include "globals.h"
 
@@ -13,6 +14,6 @@ class GameCamera {
     private:
         float shakeTimer{0.0f};
         float shakeIntensity{16.0f};
-        Vector2 middle ={ (Globals::screenWidth/2), (Globals::screenHeight/2) };
+        Vector2 middle ={(Globals::screenWidth/2), (Globals::screenHeight/2)};
 
 };

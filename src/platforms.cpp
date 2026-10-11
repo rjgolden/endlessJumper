@@ -1,60 +1,67 @@
 #include "platforms.h"
 
-Platforms::Platforms(){
-    for (size_t i{0}; i < platformArr.size(); i++) {
-        platformArr[i].rect = {
-            static_cast<float>(GetRandomValue(170, 740)), 
-            400.0f - (static_cast<float>(i)*spacing*3) - spacing,               
-            static_cast<float>(GetRandomValue(20, 70)),                          
-            10.0f                              
-        };
-        platformArr[i].colorIndex = 0;
+Platforms::Platforms() {
+    resetPlatforms();
+}
+
+void Platforms::resetPlatforms() {
+    platformArr[0].rect = {
+        static_cast<float>(GetRandomValue(170, 720)),
+        static_cast<float>(GetRandomValue(200, 250)),
+        static_cast<float>(GetRandomValue(50, 90)),
+        platformHeight
+    };
+    for (size_t i{1}; i < platformArr.size(); i++) {
+        platformArr[i].rect = generatePlatform(platformArr[i-1].rect);
+        platformArr[i].onPlatform = false;
+        platformArr[i].blocking = false;
+        if(GetRandomValue(0, 1) == 0) platformArr[i].blocking = true;
     }
 }
 
-void Platforms::resetPlatforms(){
-    for (size_t i{0}; i < platformArr.size(); i++) {
-        platformArr[i].rect = {
-            static_cast<float>(GetRandomValue(170, 740)), 
-            400.0f - (static_cast<float>(i)*30.0f*3) - 30.0f,               
-            static_cast<float>(GetRandomValue(20, 70)),                          
-            10.0f                              
-        };
-        platformArr[i].colorIndex = 0;
+Rectangle Platforms::generatePlatform(const Rectangle& previous) {
+    float width{static_cast<float>(GetRandomValue(50, 90))};
+    float x{static_cast<float>(GetRandomValue(170, 720))};
+    float y = previous.y - static_cast<float>(GetRandomValue(80, 100));
+
+    // Keep horizontal distance from the previous platform
+    
+    if (std::abs(x - previous.x) < spacing) {
+        x = previous.x + (x >= previous.x ? spacing : -spacing);
+    }
+
+    x = std::clamp(x, 170.0f, 740.0f);
+
+    return {x, y, width, platformHeight};
+}
+
+void Platforms::scrollPlatforms() {
+    float deltaTime{GetFrameTime()};
+
+    for (auto& platform : platformArr) {
+
+        platform.rect.y += scrollSpeed * deltaTime;
+
+        if (platform.rect.y > Globals::screenHeight) {
+
+            size_t highestIndex{0};
+
+            for (size_t i{1}; i < platformArr.size(); i++) {
+                if (platformArr[i].rect.y < platformArr[highestIndex].rect.y) {
+                    highestIndex = i;
+                }
+            }
+
+            platform.rect = generatePlatform(platformArr[highestIndex].rect);
+            platform.onPlatform = false;
+        }
     }
 }
 
 void Platforms::drawPlatforms(){
     for (auto& platform : platformArr) {
-        DrawRectangleLinesEx(platform.rect, 2.0f, platformColors[platform.colorIndex]);
+        if(platform.blocking) platformColor = WHITE;
+        else platformColor = platform.onPlatform ? RED : GRAY;
+        DrawRectangleLinesEx(platform.rect, 2.0f, platformColor);
     }
-}
-
-void Platforms::scrollPlatforms(){
-    float deltaTime = GetFrameTime();
-     // platforms 
-    for (auto& platform : platformArr) {
-        platform.rect.y += 120.0f * deltaTime;
-                    
-        // if platform is below the camera view
-        if (platform.rect.y > Globals::screenHeight) {
-            platform.rect.x = static_cast<float>(GetRandomValue(170, 740));
-            platform.rect.y = nextPlatformY;
-            platform.rect.width =  static_cast<float>(GetRandomValue(20, 70)); 
-        }    
-    }
-}
-
-void Platforms::setCurrentColorIndex(int index){
-    currentColorIndex = index;
-}
-void Platforms::setNextColorIndex(int index){
-    nextColorIndex = index;
-}
-
-int Platforms::getCurrentColorIndex(){
-    return currentColorIndex;
-}
-int Platforms::getNextColorIndex(){
-    return nextColorIndex;
 }

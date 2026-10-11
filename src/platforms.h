@@ -10,15 +10,13 @@ class Platforms {
         void resetPlatforms();
         void drawPlatforms();
         void scrollPlatforms();
-        void setCurrentColorIndex(int index);
-        void setNextColorIndex(int index);
-        int getCurrentColorIndex();
-        int getNextColorIndex();
+        Rectangle generatePlatform(const Rectangle& previous);
 
-        float spacing{30.0f};
-        float nextPlatformY{0.0f};
+        float spacing{60.0f};
+        float scrollSpeed{120.0f};
+        float platformHeight{10.0f};
         int currentColorIndex{0};
         int nextColorIndex{1};
-        std::array<Color, 5> platformColors = {GRAY, DARKBLUE, YELLOW, PINK, BROWN};
+        Color platformColor{};
         std::array<Globals::Platform, 20> platformArr;
 };
