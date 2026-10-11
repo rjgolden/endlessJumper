@@ -1,48 +1,70 @@
 #pragma once
-#include "animation.h"
+#include <iostream>
+#include <array>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include "raylib.h"
+#include "raymath.h"
 #include "globals.h"
 
-class Player : public Animation {
+class Player {
 
-    public:
+    public: 
 
         Player();
+        ~Player();
+        void update(std::array<Globals::Platform, 20>& platforms);
+        void updateMovement();
+        void checkCollisions(std::array<Globals::Platform, 20>& platforms);
+        void shootBullets();
+        void drawPlayer();
+        void drawBullets();
+        void getShootingInputKeyboard();
+        void getShootingInputController();
+        void getMovementInputKeyboard();
+        void getMovementInputController();
 
-        // sprite
-        void drawSprite() override;
-        void updateSprite() override;
-        void drawHitbox() override;
-        void setState(int newState);
+        float width{32.0f};
+        float height{32.0f};
+        float maxHorizontalVelocity{13.0f};
+        float maxUpVelocity{-30.0f};
+        float maxDownVelocity{60.0f};
+        float jumpHeight{10.0f};
+        float leftHoldTime{};
+        float rightHoldTime{};
+        float jumpHoldTime{};
+        float previousY{};
+        Vector2 position{480.0f, 440.0f};   
+        Vector2 velocity{};
 
-        void handleKeyboardMovement();
-        void handleControllerMovement();
-        void handleLogic();
+         // bullets
+        std::vector<Globals::Bullet> bullets;
+        std::vector<Rectangle> bulletRects;
+        Texture2D bulletTexture{};
+        float bulletRotation{};
+        float bulletSpeed{600.0f};
+        float bulletRadius{5.0f};
+        float fireRate{10.0f}; // 10 per second
+        float shootTimer{0.0f};
+        float angleStrength{0.5f};
+        bool shootingLeft{};
+        bool shootingRight{};
+        bool shootingUp{};
+        bool shootingDown{};
 
-        // getters
-        float getPlayerSpeed();
-
-        // states
-        enum {IDLE, LEFT, RIGHT, JUMP, SPIN};
-
-    private:
-    
-        // player variables
-        float m_playerSpeed{220.0f}; 
-        bool m_inAir{true};
-        float m_jumpVelocity{0.0f};
-        float m_gravity{1500.0f};
-        bool m_onPlatform{false};
-        bool m_gameOver{false};
-    
-        // frame variables
-        bool m_idle{true}; 
-        int m_state{0}; 
-
-        // texture stuff
-        Texture2D* m_currentTexture{nullptr};  // pointer to current texture
-        int8_t m_currentState{0};// track current state of textures 
-
-        // animation & sound stuff
-        std::array<Texture2D, 7> m_animationTextures;
+        bool jumped{};
+        bool jumpHeld{};
+        bool isJumping{};
+        bool isOnGround{};
+        bool jumpPressed{};
+        bool jumpDown{};
+        bool jumpReleased{};
+        bool movingLeft{};
+        bool movingRight{};
+        bool isGlidingLeft{};
+        bool isGlidingRight{};
+        bool leftWallJumped{true};
+        bool rightWallJumped{true};
 
 };

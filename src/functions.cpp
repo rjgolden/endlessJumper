@@ -1,27 +1,23 @@
 #include "functions.h"
 
-void Functions::drawLight(Vector2 position, float radius, Color color) {
+void Functions::drawLightCircle(Vector2 position, float radius, Color color, Color color2) {
     DrawCircleGradient(
-        static_cast<int>(position.x),
-        static_cast<int>(position.y),
+        position,
         radius,
         color,
-        BLANK );
+        color2 );
 }
 
-void Functions::drawSideArt(int screenW, int screenH) {
-    static Texture2D sideArt = LoadTexture("src/resources/sideArt.png");
-    DrawTexturePro( sideArt, 
-                    {0.0f, 0.0f, static_cast<float>(screenW), static_cast<float>(screenH)}, 
-                    {0.0f, 0.0f, static_cast<float>(sideArt.width), static_cast<float>(sideArt.width)}, 
-                    {0.0f, 0.0f}, 
-                    0.0f, 
-                    WHITE);
-    /*for (int y = 0; y < screenH; y += 40)s
-    {
-        DrawRectangle(0, y, screenW, 20, RED);
-        DrawRectangle(0, y+20, screenW, 20, WHITE);
-    }*/
+void Functions::drawBackground(){
+    ClearBackground(BLACK);
+    // First
+    DrawRectangle(0, 0, 170, Globals::screenHeight, DARKGRAY2);
+    // Middle 
+    DrawRectangle(160, 0, Globals::screenWidth, Globals::screenHeight, LIGHTBLUE2);
+    // Last
+    DrawRectangle(800, 0, Globals::screenWidth, Globals::screenHeight, DARKGRAY2);
+    // Floor
+    DrawRectangle(-100, static_cast<int>(Globals::floorY), Globals::screenWidth * 2, static_cast<int>(Globals::floorHeight) * 2, BLACK);
 }
 
 void Functions::toggleFullscreenWindow(){
@@ -31,6 +27,6 @@ void Functions::toggleFullscreenWindow(){
         ToggleFullscreen();
     } else {
         ToggleFullscreen();
-        SetWindowSize(Global::startScreenWidth, Global::startScreenHeight);
+        SetWindowSize(Globals::screenWidth, Globals::screenHeight);
     } 
 }

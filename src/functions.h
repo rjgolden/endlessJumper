@@ -1,9 +1,10 @@
 #pragma once
 #include "raylib.h"
 #include "globals.h"
+#include "palette.h"
 
 namespace Functions {
-    void drawLight(Vector2 position, float radius, Color color);
-    void drawSideArt(int screenW, int screenH);
+    void drawLightCircle(Vector2 position, float radius, Color color, Color color2);
+    void drawBackground();
     void toggleFullscreenWindow();
 }

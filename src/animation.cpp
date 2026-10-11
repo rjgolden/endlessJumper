@@ -1,25 +1,22 @@
 #include "animation.h"
 
 /*-------------------------------*/
-Animation::Animation(Texture2D texture, uint8_t frameCount, float positionX, float positionY, bool random){
+Animation::Animation(Texture2D texture, Vector2 position, int frameCount, int width, int height, bool random){
 
-    // load textures
+    // load texturess
     m_texture = texture;
 
-    m_defaultWidth = static_cast<float>(m_texture.width) / static_cast<float>(frameCount);
-    m_defaultHeight = static_cast<float>(m_texture.height);
-
     // rectangles 
-    m_animationRect = { 0.0f, 0.0f, m_defaultWidth, m_defaultHeight }; 
-    m_hitboxRect = { 0.0f, 0.0f, m_defaultWidth, m_defaultHeight };
+    m_animationRect = { 0.0f, 0.0f, width, height }; 
+    m_hitboxRect = { 0.0f, 0.0f, width, height };
 
     // frame stuff
     m_frameCount = frameCount; // Number of frames in the idle animation
     m_random = random;
     
     // position and speed
-    m_positionX = positionX; 
-    m_positionY = positionY; 
+    m_position.x = position.x; 
+    m_position.x = position.y; 
 
 }
 
@@ -51,15 +48,16 @@ void Animation::animateSpriteRandom(){
 }
 
 void Animation::drawSprite(){
-    DrawTexturePro(m_texture, m_animationRect, {m_positionX, m_positionY, static_cast<float>(m_texture.width) / static_cast<float>(m_frameCount), static_cast<float>(m_texture.height)}, {0.0f, 0.0f}, m_rotation, WHITE);
-}
-
-void Animation::drawAnimationBoxLines(){
-    DrawRectangleLines(m_positionX, m_positionY, m_animationRect.width, m_animationRect.height, GREEN);
+    DrawTexturePro(m_texture, 
+                   m_animationRect, 
+                   {m_position.x, m_position.y, static_cast<float>(m_texture.width) / static_cast<float>(m_frameCount), static_cast<float>(m_texture.height)}, 
+                   {0.0f, 0.0f}, 
+                   m_rotation, 
+                   WHITE);
 }
 
 void Animation::drawHitbox(){
-    DrawRectangleLines(m_positionX + m_offsetX, m_positionY + m_offsetY, m_hitboxRect.width, m_hitboxRect.height, RED);
+    DrawRectangleLines(m_position.x + m_offset.x, m_position.y + m_offset.y, m_hitboxRect.width, m_hitboxRect.height, RED);
 }
 
 void Animation::updateSprite(){
@@ -67,62 +65,5 @@ void Animation::updateSprite(){
     else animateSprite();
     drawSprite();
     drawHitbox();
-    drawAnimationBoxLines();
 }
 
-/*-------------GETTERS------------*/
-float Animation::getPositionX() { 
-    return m_positionX;
-}
-
-float Animation::getPositionY() { 
-    return m_positionY;
-}
-
-float Animation::getWidth() { 
-    return m_hitboxRect.width; 
-}
-
-float Animation::getHeight() { 
-    return m_hitboxRect.height; 
-}
-
-Vector2 Animation::getPosition() { 
-    return Vector2{m_positionX, m_positionY};
-}
-
-Vector2 Animation::getDefaultDimensions(){
-    return Vector2{m_defaultWidth, m_defaultHeight};
-}
-
-Rectangle Animation::getHitboxRect() { 
-    return Rectangle{m_positionX + m_offsetX, m_positionY + m_offsetY, m_hitboxRect.width, m_hitboxRect.height};
-}
-
-/*-------------SETTERS------------*/
-void Animation::setPositionX(float positionX){
-    m_positionX = positionX;
-}
-
-void Animation::setPositionY(float positionY){
-    m_positionY = positionY;
-}
-
-void Animation::setPosition(Vector2 position){
-    m_positionX = position.x;
-    m_positionY = position.y;
-}
-
-void Animation::setRotation(float rotation){
-    m_rotation = rotation;
-}
-
-void Animation::setHitboxDimensions(Vector2 dimensions){
-    m_hitboxRect.width = dimensions.x;
-    m_hitboxRect.height = dimensions.y;
-}
-
-void Animation::setHitboxOffset(Vector2 pos){
-    m_offsetX = pos.x;
-    m_offsetY = pos.y;
-}
