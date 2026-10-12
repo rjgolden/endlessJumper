@@ -1,8 +1,8 @@
 #pragma once
-#include "raylib.h"
 #include <array>
 #include <algorithm> 
-#include "globals.h"
+#include "raylib.h"
+#include "globals.hpp"
 
 class Platforms {
     public: 

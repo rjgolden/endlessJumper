@@ -1,4 +1,4 @@
-#include "animation.h"
+#include "animation.hpp"
 
 /*-------------------------------*/
 Animation::Animation(Texture2D texture, Vector2 position, int frameCount, int width, int height, bool random){

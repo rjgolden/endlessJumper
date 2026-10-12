@@ -1,4 +1,4 @@
-#include "platforms.h"
+#include "platforms.hpp"
 
 Platforms::Platforms() {
     resetPlatforms();
@@ -38,9 +38,11 @@ Rectangle Platforms::generatePlatform(const Rectangle& previous) {
 void Platforms::scrollPlatforms() {
     float deltaTime{GetFrameTime()};
 
-    for (auto& platform : platformArr) {
-
+    for(auto& platform : platformArr){
         platform.rect.y += scrollSpeed * deltaTime;
+    }
+
+    for (auto& platform : platformArr) {
 
         if (platform.rect.y > Globals::screenHeight) {
 

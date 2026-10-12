@@ -1,17 +1,17 @@
 #include <iostream>
 #include <algorithm>
 #include "raylib.h"
-#include "functions.h"
-#include "palette.h"
-#include "player.h"
-#include "globals.h"
-#include "platforms.h"
-#include "gameCamera.h"
+#include "functions.hpp"
+#include "palette.hpp"
+#include "player.hpp"
+#include "globals.hpp"
+#include "platforms.hpp"
+#include "gameCamera.hpp"
 
 int main()
 {
 
-    InitWindow(Globals::screenWidth, Globals::screenHeight, "Meatboy Movement");
+    InitWindow(Globals::screenWidth, Globals::screenHeight, "meatJumpShooter");
     SetTargetFPS(144);
 
     Player player;
@@ -29,7 +29,7 @@ int main()
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT); 
 
     while (!WindowShouldClose())
-    {
+    {   
         // ======================================================= //
         // FIRST PASS - GAME LOGIC                                 //
         // ======================================================= //
@@ -38,6 +38,7 @@ int main()
         if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
         score +=  1.0f / 10.0f;
         player.update(platforms.platformArr);
+        platforms.scrollPlatforms();
 
         // ======================================================== //
         // SECOND PASS - CREATING LIGHT MAP                         //
@@ -60,17 +61,14 @@ int main()
 
         BeginTextureMode(target);
         // {
-            // 2D mode - where game is drawn to virtual screen   
+            // 2D mode - where game is drawn to virtual screen
             BeginMode2D(gameCamera.camera);
-            // {
-                
+
                 Functions::drawBackground();
-                platforms.scrollPlatforms();
-                platforms.drawPlatforms();
+                platforms.drawPlatforms();          
                 player.drawPlayer();
                 player.drawBullets();
                 
-            // }
             EndMode2D();
             
             // Light/pixel blending
@@ -109,12 +107,10 @@ int main()
                 WHITE );
 
             // UI (temp)
-            std::string scoreString = std::to_string(static_cast<int>(score));
-            const char* scoreConstChar = scoreString.c_str();
-            DrawText("Score: ", 20 * scale, 20, 20 * scale, YELLOW);
-            DrawText(scoreConstChar, 100 * scale, 20, 20 * scale, YELLOW);
-            DrawText("F11 for Fullscreen", 10, 80, 20 * scale, YELLOW);
-            
+            DrawText(TextFormat("Score: %d", static_cast<int>(score)),
+                     20 * scale, 20, 20 * scale, YELLOW);
+            DrawText("F11: Fullscreen", 10, 80, 20 * scale, YELLOW);
+
         // }
         EndDrawing();
     }

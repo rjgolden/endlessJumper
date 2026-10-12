@@ -2,7 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <raylib.h>
-#include "globals.h"
+#include "globals.hpp"
 
 class GameCamera {
 

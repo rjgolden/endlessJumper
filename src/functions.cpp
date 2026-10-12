@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "functions.hpp"
 
 void Functions::drawLightCircle(Vector2 position, float radius, Color color, Color color2) {
     DrawCircleGradient(

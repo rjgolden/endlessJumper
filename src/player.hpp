@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "raylib.h"
 #include "raymath.h"
-#include "globals.h"
+#include "globals.hpp"
 
 class Player {
 
@@ -43,7 +43,7 @@ class Player {
         Texture2D bulletTexture{};
         float bulletRotation{};
         float bulletSpeed{600.0f};
-        float bulletRadius{5.0f};
+        float bulletRadius{10.0f};
         float fireRate{10.0f}; // 10 per second
         float shootTimer{0.0f};
         float angleStrength{0.5f};

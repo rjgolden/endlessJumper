@@ -1,4 +1,4 @@
-#include "player.h"
+#include "player.hpp"
 
 Player::Player(){
     bulletTexture = LoadTexture("src/bullet.png");
@@ -329,7 +329,7 @@ void Player::shootBullets(){
             direction = {0.0f, 1.0f};
         }
         else if (shootingLeft){
-            bulletRotation = 0.0f;
+            bulletRotation = 180.0f;
             direction = {-1.0f, 0.0f};
         }
         else if (shootingRight){
@@ -340,7 +340,7 @@ void Player::shootBullets(){
         if (Vector2Length(direction) > 0.0f) {
             direction.y += (velocity.y / 200.0f) * angleStrength;
             direction = Vector2Normalize(direction);
-            bullets.push_back({center, direction});
+            bullets.push_back({center, direction, bulletRotation});
             bulletRects.push_back({center.x, center.y, 16.0f, 16.0f});
             shootTimer = 1.0f / fireRate;
         }
@@ -445,9 +445,10 @@ void Player::drawPlayer(){
     );
 }
 
-void Player::drawBullets(){
-    for (size_t i{}; i<bullets.size(); i++) {
-        DrawCircleLines(bullets[i].position.x, bullets[i].position.y, bulletRadius, GREEN);
-        DrawTextureEx(bulletTexture, {bulletRects[i].x, bulletRects[i].y}, bulletRotation, 1.0f, WHITE);
-    }
+void Player::drawBullets() {
+    for (const auto& bullet : bullets)
+        DrawCircleLines(bullet.position.x, bullet.position.y, bulletRadius, GREEN);
+
+    for (const auto& bullet : bullets)
+        DrawTextureEx(bulletTexture, bullet.position, bullet.rotation, 1.0f, WHITE);
 }

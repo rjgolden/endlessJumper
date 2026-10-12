@@ -31,5 +31,6 @@ namespace Globals {
     struct Bullet {
         Vector2 position;
         Vector2 direction;
+        float rotation{0.0f};
     };
 }
