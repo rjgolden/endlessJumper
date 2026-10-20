@@ -6,6 +6,7 @@
 
 class Platforms {
     public: 
+    
         Platforms();
         void resetPlatforms();
         void drawPlatforms();

@@ -1,17 +1,69 @@
 #include "player.hpp"
+#include <algorithm>
+#include <cmath>
+#include "raymath.h"
 
-Player::Player(){
+namespace {
+    constexpr std::array<const char*, Player::ANIMATION_COUNT> animationPaths = {{
+        "src/resources/Animations/eyeball-Idle.png",
+        "src/resources/Animations/eyeballMoveLeft.png",
+        "src/resources/Animations/eyeballMoveRight.png",
+        "src/resources/Animations/eyeballMoveUp.png",
+        "src/resources/Animations/eyeball-attackleft.png",
+        "src/resources/Animations/eyeball-attackRight.png",
+        "src/resources/Animations/eyeball-attackDown.png"
+    }};
+}
+
+Player::Player() {
     bulletTexture = LoadTexture("src/bullet.png");
+
+    for (std::size_t i = 0; i < ANIMATION_COUNT; ++i) {
+        m_textures[i] = LoadTexture(animationPaths[i]);
+        
+        // AnimationClip fields: texture pointer, frame count, fps, loop, random.
+        m_animations[i] = AnimationClip{&m_textures[i], 8, 12.0f, true, false};
+    }
 }
 
-Player::~Player(){
-    UnloadTexture(bulletTexture);
+Player::~Player() {
+    for (Texture2D& texture : m_textures) {
+        if (texture.id != 0) UnloadTexture(texture);
+    }
+    if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(std::array<Globals::Platform, 20>& platforms){
+void Player::update(std::array<Globals::Platform, 20>& platforms) {
     updateMovement();
     checkCollisions(platforms);
+
+    getShootingInputKeyboard();
+    if (IsGamepadAvailable(0)) getShootingInputController();
+
     shootBullets();
+    updateAnimationState(); 
+    m_animator.update(GetFrameTime());
+}
+
+void Player::updateAnimationState() {
+    State next = State::IDLE;
+
+    if (shootingUp)                         next = State::UP;
+    else if (shootingDown)                  next = State::ATTACK_DOWN;
+    else if (shootingLeft)                  next = State::ATTACK_LEFT;
+    else if (shootingRight)                 next = State::ATTACK_RIGHT;
+    else if (movingLeft || isGlidingLeft)   next = State::LEFT;
+    else if (movingRight || isGlidingRight) next = State::RIGHT;
+    else if (!isOnGround)                   next = State::UP;
+
+    setAnimationState(next);
+}
+
+void Player::setAnimationState(State newState) {
+    if (newState == m_currentState) return;
+
+    m_currentState = newState;
+    m_animator.play(m_animations[static_cast<std::size_t>(newState)]);
 }
 
 void Player::updateMovement(){
@@ -141,10 +193,9 @@ void Player::updateMovement(){
     // APPLY FORCES       //
     // ================== //
 
-    velocity.x += appliedForces.x * frameScale;
-    velocity.y += appliedForces.y * frameScale;
-    velocity.x += appliedForces.x * frameScale;
-    velocity.y += appliedForces.y * frameScale;
+    // The original code applied forces twice; preserve that exact physics behavior.
+    velocity.x += 2.0f * appliedForces.x * frameScale;
+    velocity.y += 2.0f * appliedForces.y * frameScale;
 
     // ================== //
     // FRICTION           //
@@ -175,12 +226,9 @@ void Player::updateMovement(){
     // ================== //
     // STOP SMALL MVMNT   //
     // ================== //
-    /*
-    if (appliedForces.x == 0.0f && std::abs(player.velocity.x) < 1.0f)
-    {
-        player.velocity.x = 0.0f;
-    }
-    */
+    
+    if (appliedForces.x == 0.0f && std::abs(velocity.x) < 1.0f) velocity.x = 0.0f;
+    
     // ================== //
     // SPEED CAPS         //
     // ================== //
@@ -317,9 +365,6 @@ void Player::shootBullets(){
     if (shootTimer <= 0.0f) {
         Vector2 direction{0.0f, 0.0f};
 
-        getShootingInputKeyboard();
-        if(IsGamepadAvailable(0)) getShootingInputController();
-
         if (shootingUp){
             bulletRotation = 90.0f;
             direction = {0.0f, -1.0f};
@@ -367,7 +412,7 @@ void Player::shootBullets(){
 
         if (pos.x - bulletRadius <= 160 ||
             pos.x + bulletRadius >= 800 ||
-            pos.y - bulletRadius <= 0 ||
+            pos.y - bulletRadius <= 0   ||
             pos.y + bulletRadius >= 500){
             bullets.erase(bullets.begin() + i);
             bulletRects.erase(bulletRects.begin() + i);
@@ -399,50 +444,44 @@ void Player::getMovementInputController(){
     }
 }
 
-void Player::getShootingInputKeyboard(){
-    if (IsKeyDown(KEY_UP))
+void Player::getShootingInputKeyboard() {
+    shootingUp = false;
+    shootingDown = false;
+    shootingLeft = false;
+    shootingRight = false;
+
+    if (IsKeyDown(KEY_UP))         shootingUp = true;
+    else if (IsKeyDown(KEY_DOWN))  shootingDown = true;
+    else if (IsKeyDown(KEY_LEFT))  shootingLeft = true;
+    else if (IsKeyDown(KEY_RIGHT)) shootingRight = true;
+}
+
+void Player::getShootingInputController() {
+    if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_UP))
         shootingUp = true;
-    else if (IsKeyDown(KEY_DOWN))
+    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_2))
         shootingDown = true;
-    else if (IsKeyDown(KEY_LEFT))
+    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT))
         shootingLeft = true;
-    else if (IsKeyDown(KEY_RIGHT))
+    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT))
         shootingRight = true;
-    else{
-        shootingUp = false;
-        shootingDown = false;
-        shootingLeft = false;
-        shootingRight = false;
-    }
 }
 
-void Player::getShootingInputController(){
-    if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)){
-        shootingUp = true;     
-    }
-    else if(IsGamepadButtonDown(0,  GAMEPAD_BUTTON_RIGHT_TRIGGER_2)){
-        shootingDown = true;     
-    }
-    else if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)){
-        shootingLeft = true;     
-    }
-    else if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)){
-        shootingRight = true;     
-    }
-    else{
-        if(!shootingUp) shootingUp = false;
-        if(!shootingDown) shootingDown = false;
-        if(!shootingLeft) shootingLeft = false;
-        if(!shootingRight) shootingRight = false;
-    }
-}
+void Player::drawPlayer() {
+    const AnimationClip& clip = m_animations[static_cast<std::size_t>(m_currentState)];
 
-void Player::drawPlayer(){
-    DrawRectangle(
-        static_cast<int>(position.x - 16.0f),
-        static_cast<int>(position.y - 16.0f),
-        32,32, RED
-    );
+    if (clip.texture != nullptr && clip.texture->id != 0 && clip.frameCount > 0) {
+        const float frameWidth = static_cast<float>(clip.texture->width) / clip.frameCount;
+        const float frameHeight = static_cast<float>(clip.texture->height);
+        m_animator.draw({position.x - frameWidth * 0.5f,
+                         position.y - frameHeight * 0.5f});
+    }
+    else {
+        // Fallback if sprite sheets haven't been added at the specified paths.
+        DrawRectangle(static_cast<int>(position.x - width * 0.5f),
+                      static_cast<int>(position.y - height * 0.5f),
+                      static_cast<int>(width), static_cast<int>(height), RED);
+    }
 }
 
 void Player::drawBullets() {

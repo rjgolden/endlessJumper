@@ -1,18 +1,24 @@
 #pragma once
-#include <iostream>
+
 #include <array>
+#include <cstddef>
 #include <vector>
-#include <algorithm>
 #include "raylib.h"
-#include "raymath.h"
 #include "globals.hpp"
+#include "animator.hpp"
 
 class Player {
 
-    public: 
+    public:
 
         Player();
         ~Player();
+
+        Player(const Player&) = delete;
+        Player& operator=(const Player&) = delete;
+        Player(Player&&) = delete;
+        Player& operator=(Player&&) = delete;
+
         void update(std::array<Globals::Platform, 20>& platforms);
         void updateMovement();
         void checkCollisions(std::array<Globals::Platform, 20>& platforms);
@@ -34,17 +40,16 @@ class Player {
         float rightHoldTime{};
         float jumpHoldTime{};
         float previousY{};
-        Vector2 position{480.0f, 440.0f};   
+        Vector2 position{480.0f, 440.0f}; // center of player (not sprite top-left)
         Vector2 velocity{};
 
-         // bullets
         std::vector<Globals::Bullet> bullets;
         std::vector<Rectangle> bulletRects;
         Texture2D bulletTexture{};
         float bulletRotation{};
         float bulletSpeed{600.0f};
         float bulletRadius{10.0f};
-        float fireRate{10.0f}; // 10 per second
+        float fireRate{10.0f};
         float shootTimer{0.0f};
         float angleStrength{0.5f};
         bool shootingLeft{};
@@ -66,4 +71,25 @@ class Player {
         bool leftWallJumped{true};
         bool rightWallJumped{true};
 
+        enum class State {
+            IDLE,
+            LEFT,
+            RIGHT,
+            UP,
+            ATTACK_LEFT,
+            ATTACK_RIGHT,
+            ATTACK_DOWN,
+            COUNT
+        };
+
+        static constexpr std::size_t ANIMATION_COUNT =
+            static_cast<std::size_t>(State::COUNT);
+            
+        void updateAnimationState();
+        void setAnimationState(State newState);
+
+        std::array<Texture2D, ANIMATION_COUNT> m_textures{};
+        std::array<AnimationClip, ANIMATION_COUNT> m_animations{};
+        Animator m_animator;
+        State m_currentState{State::IDLE};
 };
