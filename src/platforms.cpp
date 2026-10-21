@@ -15,7 +15,7 @@ void Platforms::resetPlatforms() {
         platformArr[i].rect = generatePlatform(platformArr[i-1].rect);
         platformArr[i].onPlatform = false;
         platformArr[i].blocking = false;
-        if(GetRandomValue(0, 1) == 0) platformArr[i].blocking = true;
+        //if(GetRandomValue(0, 1) == 0) platformArr[i].blocking = true;
     }
 }
 

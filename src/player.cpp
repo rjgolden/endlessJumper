@@ -3,7 +3,8 @@
 #include <cmath>
 #include "raymath.h"
 
-namespace {
+Player::Player() {
+
     constexpr std::array<const char*, Player::ANIMATION_COUNT> animationPaths = {{
         "src/resources/Animations/eyeball-Idle.png",
         "src/resources/Animations/eyeballMoveLeft.png",
@@ -13,9 +14,7 @@ namespace {
         "src/resources/Animations/eyeball-attackRight.png",
         "src/resources/Animations/eyeball-attackDown.png"
     }};
-}
 
-Player::Player() {
     bulletTexture = LoadTexture("src/bullet.png");
 
     for (std::size_t i = 0; i < ANIMATION_COUNT; ++i) {
@@ -24,6 +23,7 @@ Player::Player() {
         // AnimationClip fields: texture pointer, frame count, fps, loop, random.
         m_animations[i] = AnimationClip{&m_textures[i], 8, 12.0f, true, false};
     }
+    
 }
 
 Player::~Player() {

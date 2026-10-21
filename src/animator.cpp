@@ -4,7 +4,6 @@
 /*-------------------------------*/
 void Animator::play(const AnimationClip& clip) {
 
-    // Don't restart an animation that's already playing
     if (m_currentClip == &clip)
         return;
 
@@ -35,22 +34,21 @@ void Animator::update(float deltaTime) {
 
         if (clip.random) {
             m_currentFrame = GetRandomValue(0, clip.frameCount - 1);
+            continue;
         }
-        else {
-            m_currentFrame++;
 
-            if (m_currentFrame >= clip.frameCount) {
+        m_currentFrame++;
 
-                if (clip.loop) {
-                    m_currentFrame = 0;
-                }
-                else {
-                    m_currentFrame = clip.frameCount - 1;
-                    m_finished = true;
-                    break;
-                }
-            }
+        if (m_currentFrame < clip.frameCount) continue;
+
+        if (clip.loop) {
+            m_currentFrame = 0;
+            continue;
         }
+
+        m_currentFrame = clip.frameCount - 1;
+        m_finished = true;
+        break;
     }
 }
 

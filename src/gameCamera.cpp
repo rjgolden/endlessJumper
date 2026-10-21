@@ -1,13 +1,11 @@
 #include "gameCamera.hpp"
 
 GameCamera::GameCamera(){
-
     camera = {0};
     camera.target = middle;
     camera.offset = middle;
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-    
 }
 
 void GameCamera::shakeCamera(){

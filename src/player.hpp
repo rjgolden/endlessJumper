@@ -50,7 +50,7 @@ class Player {
         float bulletSpeed{600.0f};
         float bulletRadius{10.0f};
         float fireRate{10.0f};
-        float shootTimer{0.0f};
+        float shootTimer{};
         float angleStrength{0.5f};
         bool shootingLeft{};
         bool shootingRight{};
@@ -64,6 +64,7 @@ class Player {
         bool jumpPressed{};
         bool jumpDown{};
         bool jumpReleased{};
+        
         bool movingLeft{};
         bool movingRight{};
         bool isGlidingLeft{};
@@ -84,7 +85,7 @@ class Player {
 
         static constexpr std::size_t ANIMATION_COUNT =
             static_cast<std::size_t>(State::COUNT);
-            
+
         void updateAnimationState();
         void setAnimationState(State newState);
 
