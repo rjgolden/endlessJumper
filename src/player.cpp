@@ -117,12 +117,12 @@ void Player::updateMovement(){
     {
         // Ground jump
         if (!isJumping && !isGlidingLeft && !isGlidingRight)
-            velocity.y = -4.0f;
+            velocity.y = -6.0f;
 
         // Left wall jump
         else if (isGlidingLeft  && leftWallJumped)
         {
-            velocity.y = -2.0f;
+            velocity.y = -4.0f;
             leftWallJumped = false;
             rightWallJumped = true;
             maxHorizontalVelocity = 999.0f;
@@ -134,7 +134,7 @@ void Player::updateMovement(){
         // Right wall jump
         else if (isGlidingRight && rightWallJumped)
         {
-            velocity.y = -2.0f;
+            velocity.y = -4.0f;
             rightWallJumped = false;
             leftWallJumped = true;
             maxHorizontalVelocity = 999.0f;
