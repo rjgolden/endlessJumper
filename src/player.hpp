@@ -19,9 +19,9 @@ class Player {
         Player(Player&&) = delete;
         Player& operator=(Player&&) = delete;
 
-        void update(std::array<Globals::Platform, 20>& platforms);
+        void update(std::array<Globals::Platform, 90>& platforms);
         void updateMovement();
-        void checkCollisions(std::array<Globals::Platform, 20>& platforms);
+        void checkCollisions(std::array<Globals::Platform, 90>& platforms);
         void shootBullets();
         void drawPlayer();
         void drawBullets();

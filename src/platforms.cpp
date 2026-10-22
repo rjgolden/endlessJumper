@@ -6,10 +6,10 @@ Platforms::Platforms() {
 
 void Platforms::resetPlatforms() {
     platformArr[0].rect = {
-        static_cast<float>(GetRandomValue(170, 720)),
-        static_cast<float>(GetRandomValue(200, 250)),
-        static_cast<float>(GetRandomValue(50, 90)),
-        platformHeight
+        static_cast<float>(GetRandomValue(170, 720)), // x
+        static_cast<float>(GetRandomValue(380, 440)), // y
+        static_cast<float>(GetRandomValue(50, 90)),  // w
+        platformHeight // h
     };
     for (size_t i{1}; i < platformArr.size(); i++) {
         platformArr[i].rect = generatePlatform(platformArr[i-1].rect);
@@ -21,7 +21,7 @@ void Platforms::resetPlatforms() {
 
 Rectangle Platforms::generatePlatform(const Rectangle& previous) {
     float x{static_cast<float>(GetRandomValue(170, 720))};
-    float y = previous.y - static_cast<float>(GetRandomValue(80, 100));
+    float y{previous.y - static_cast<float>(GetRandomValue(80, 100))};
     float width{static_cast<float>(GetRandomValue(50, 90))};
     
     // Keep horizontal distance from the previous platform
@@ -34,6 +34,7 @@ Rectangle Platforms::generatePlatform(const Rectangle& previous) {
     return {x, y, width, platformHeight};
 }
 
+/*
 void Platforms::scrollPlatforms() {
     float deltaTime{GetFrameTime()};
 
@@ -58,6 +59,7 @@ void Platforms::scrollPlatforms() {
         }
     }
 }
+*/
 
 void Platforms::drawPlatforms(){
     for (auto& platform : platformArr) {

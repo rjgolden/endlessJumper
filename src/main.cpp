@@ -18,6 +18,7 @@ int main()
         Player player;
         Platforms platforms;
         GameCamera gameCamera;
+        gameCamera.camera.zoom = 1.0f;
 
         float score{0.0f};
         float scale{1.0f};
@@ -34,12 +35,23 @@ int main()
             // ======================================================= //
             // FIRST PASS - GAME LOGIC                                 //
             // ======================================================= //
-        
+            float deltaTime = GetFrameTime();
             if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
             if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
-            score +=  1.0f / 10.0f;
+            float wheelMove = GetMouseWheelMove();
+            if (wheelMove != 0.0f) {
+                // Update your zoom or scroll offset based on wheelMove
+                gameCamera.camera.zoom += wheelMove * 0.1f;
+            }
+            if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) gameCamera.camera.zoom += 0.01f;
+            if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) gameCamera.camera.zoom -= 0.01f;
+
+            score +=  1.0f/10.0f;
             player.update(platforms.platformArr);
-            platforms.scrollPlatforms();
+            //platforms.scrollPlatforms();
+
+            gameCamera.camera.target.x += ((player.position.x) - gameCamera.camera.target.x) * (1.55f * deltaTime);
+            gameCamera.camera.target.y += ((player.position.y) - gameCamera.camera.target.y) * (1.55f * deltaTime);
 
             // ======================================================== //
             // SECOND PASS - CREATING LIGHT MAP                         //
@@ -50,7 +62,7 @@ int main()
                 ClearBackground(LIGHTGRAY); // screen tint (black for complete dark, etc.)
                 BeginBlendMode(BLEND_ADDITIVE); 
                 // {
-                    Functions::drawLightCircle({player.position.x, player.position.y}, 115.0f, Fade(YELLOW, 0.60f), BLANK);
+                    Functions::drawLightCircle({GetWorldToScreen2D(player.position, gameCamera.camera)}, 115.0f, Fade(YELLOW, 0.60f), BLANK);
                 // }
                 EndBlendMode();
             // }
@@ -111,6 +123,7 @@ int main()
                 DrawText(TextFormat("Score: %d", static_cast<int>(score)),
                          20 * scale, 20, 20 * scale, YELLOW);
                 DrawText("F11: Fullscreen", 10, 80, 20 * scale, YELLOW);
+                DrawText(TextFormat("Current Zoom: %f", gameCamera.camera.zoom), 10, 120, 20 * scale, YELLOW);
 
             // }
             EndDrawing();

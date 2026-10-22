@@ -33,7 +33,7 @@ Player::~Player() {
     if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(std::array<Globals::Platform, 20>& platforms) {
+void Player::update(std::array<Globals::Platform, 90>& platforms) {
     updateMovement();
     checkCollisions(platforms);
 
@@ -107,7 +107,7 @@ void Player::updateMovement(){
     }
 
     if (jumpHeld && jumpDown) jumpHoldTime += deltaTime;
-    if (jumpReleased)jumpHeld = false;
+    if (jumpReleased) jumpHeld = false;
     
     // ================== //
     // INITIAL JUMP       //
@@ -117,12 +117,12 @@ void Player::updateMovement(){
     {
         // Ground jump
         if (!isJumping && !isGlidingLeft && !isGlidingRight)
-            velocity.y = -6.0f;
+            velocity.y = -4.0f;
 
         // Left wall jump
         else if (isGlidingLeft  && leftWallJumped)
         {
-            velocity.y = -4.0f;
+            velocity.y = -2.0f;
             leftWallJumped = false;
             rightWallJumped = true;
             maxHorizontalVelocity = 999.0f;
@@ -134,7 +134,7 @@ void Player::updateMovement(){
         // Right wall jump
         else if (isGlidingRight && rightWallJumped)
         {
-            velocity.y = -4.0f;
+            velocity.y = -2.0f;
             rightWallJumped = false;
             leftWallJumped = true;
             maxHorizontalVelocity = 999.0f;
@@ -249,7 +249,7 @@ void Player::updateMovement(){
     maxHorizontalVelocity = 13.0f;
 }
 
-void Player::checkCollisions(std::array<Globals::Platform, 20>& platforms){
+void Player::checkCollisions(std::array<Globals::Platform, 90>& platforms){
     // ======================//
     // RESET COLLISION STATE //
     // ======================//
@@ -342,9 +342,9 @@ void Player::checkCollisions(std::array<Globals::Platform, 20>& platforms){
     // CEILING            //
     // ================== //
 
-    if (position.y - halfHeight < 0.0f)
+    if (position.y - halfHeight < -5400.0f)
     {
-        position.y = halfHeight;
+        position.y = -5400.0f;
 
         if (velocity.y < 0.0f)
             velocity.y = 0.0f;
@@ -412,7 +412,7 @@ void Player::shootBullets(){
 
         if (pos.x - bulletRadius <= 160 ||
             pos.x + bulletRadius >= 800 ||
-            pos.y - bulletRadius <= 0   ||
+            pos.y - bulletRadius <= -5400 ||
             pos.y + bulletRadius >= 500){
             bullets.erase(bullets.begin() + i);
             bulletRects.erase(bulletRects.begin() + i);
