@@ -50,7 +50,7 @@ int main()
             player.update(platforms.platformArr);
             //platforms.scrollPlatforms();
 
-            gameCamera.camera.target.x += ((player.position.x) - gameCamera.camera.target.x) * (1.55f * deltaTime);
+            //gameCamera.camera.target.x += ((player.position.x) - gameCamera.camera.target.x) * (1.55f * deltaTime);
             gameCamera.camera.target.y += ((player.position.y) - gameCamera.camera.target.y) * (1.55f * deltaTime);
 
             // ======================================================== //
