@@ -11,13 +11,13 @@ void Functions::drawLightCircle(Vector2 position, float radius, Color color, Col
 void Functions::drawBackground(){
     ClearBackground(BLACK);
     // First
-    DrawRectangle(-400, -static_cast<int>(Globals::screenHeight)*10, 570, static_cast<int>(Globals::screenHeight)*13, DARKGRAY2);
+    DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);
     // Middle 
-    DrawRectangle(170, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, LIGHTBLUE2);
+    DrawRectangle(165, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN);
     // Last
-    DrawRectangle(800, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, DARKGRAY2);
+    DrawRectangle(795, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);
     // Floor
-    DrawRectangle(170, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK);
+    DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK);
 }
 
 void Functions::toggleFullscreenWindow(){

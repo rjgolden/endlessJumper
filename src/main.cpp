@@ -8,11 +8,12 @@
 #include "platforms.hpp"
 #include "gameCamera.hpp"
 
-void resetGame(Platforms &platforms, Player &player, GameCamera &gameCamera, float &score){
+void resetGame(Platforms &platforms, Player &player, GameCamera &gameCamera, float &score, float &biggestY){
     platforms.resetPlatforms();
     player.position = {480.0f, 440.0f};
     gameCamera.camera.target = {(Globals::screenWidth/2), (Globals::screenHeight/2)};
     score = 0.0f;
+    biggestY = 440.0f;
 }
 
 int main()
@@ -41,24 +42,20 @@ int main()
         // ======================================================= //
         // FIRST PASS - GAME LOGIC                                 //
         // ======================================================= //
+        
         float deltaTime = GetFrameTime();
         if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
         if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
-        if(IsKeyPressed(KEY_H)) resetGame(platforms, player, gameCamera, score);
+        if(IsKeyPressed(KEY_H)) resetGame(platforms, player, gameCamera, score, biggestY);
 
         score +=  1.0f/10.0f;
         player.update(platforms.platformArr);
 
-        //gameCamera.camera.target.x += ((player.position.x) - gameCamera.camera.target.x) * (1.55f * deltaTime);
-        if(player.position.y < biggestY) biggestY = player.position.y;
         Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
-        if(playerScreenPos.y > Globals::screenHeight) {
-            resetGame(platforms, player, gameCamera, score);
-            biggestY = 440.0f;
-        }
+        if(playerScreenPos.y > Globals::screenHeight) resetGame(platforms, player, gameCamera, score, biggestY);
+        if(player.position.y < biggestY) biggestY = player.position.y;
         gameCamera.camera.target.y += ((biggestY) - gameCamera.camera.target.y) * (1.55f * deltaTime);
         
-
         // ======================================================== //
         // SECOND PASS - CREATING LIGHT MAP                         //
         // ======================================================== //
@@ -126,11 +123,8 @@ int main()
                 WHITE );
 
             // UI (temp)
-            DrawText(TextFormat("Score: %d", static_cast<int>(score)),
-                        20 * scale, 20, 20 * scale, YELLOW);
+            DrawText(TextFormat("Score: %d", static_cast<int>(score)), 20 * scale, 20, 20 * scale, YELLOW);
             DrawText("F11: Fullscreen", 10, 80, 20 * scale, YELLOW);
-            DrawText(TextFormat("Current Zoom: %f", gameCamera.camera.zoom), 10, 120, 20 * scale, YELLOW);
-
         // }
         EndDrawing();
     }
