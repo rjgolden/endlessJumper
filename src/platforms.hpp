@@ -10,7 +10,6 @@ class Platforms {
         Platforms();
         void resetPlatforms();
         void drawPlatforms();
-        //void scrollPlatforms();
         Rectangle generatePlatform(const Rectangle& previous);
 
         float spacing{60.0f};
@@ -19,5 +18,5 @@ class Platforms {
         int currentColorIndex{0};
         int nextColorIndex{1};
         Color platformColor{};
-        std::array<Globals::Platform, 90> platformArr;
+        std::array<Platform, 90> platformArr;
 };

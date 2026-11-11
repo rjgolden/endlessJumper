@@ -8,130 +8,135 @@
 #include "platforms.hpp"
 #include "gameCamera.hpp"
 
+void resetGame(Platforms &platforms, Player &player, GameCamera &gameCamera, float &score){
+    platforms.resetPlatforms();
+    player.position = {480.0f, 440.0f};
+    gameCamera.camera.target = {(Globals::screenWidth/2), (Globals::screenHeight/2)};
+    score = 0.0f;
+}
+
 int main()
 {
 
     InitWindow(Globals::screenWidth, Globals::screenHeight, "meatJumpShooter");
     SetTargetFPS(144);
 
-    { 
-        Player player;
-        Platforms platforms;
-        GameCamera gameCamera;
-        gameCamera.camera.zoom = 1.0f;
+    Player player;
+    Platforms platforms;
+    GameCamera gameCamera;
 
-        float score{0.0f};
-        float scale{1.0f};
-        float offsetX{0.0f};
-        float offsetY{0.0f};
+    float score{0.0f};
+    float scale{1.0f};
+    float offsetX{0.0f};
+    float offsetY{0.0f};
+    float biggestY{440.0f};
 
-        RenderTexture2D lightMap = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
-        SetTextureFilter(lightMap.texture, TEXTURE_FILTER_POINT);
-        RenderTexture2D target = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
-        SetTextureFilter(target.texture, TEXTURE_FILTER_POINT); 
+    RenderTexture2D lightMap = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
+    SetTextureFilter(lightMap.texture, TEXTURE_FILTER_POINT);
+    RenderTexture2D target = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_POINT); 
 
-        while (!WindowShouldClose())
-        {   
-            // ======================================================= //
-            // FIRST PASS - GAME LOGIC                                 //
-            // ======================================================= //
-            float deltaTime = GetFrameTime();
-            if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
-            if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
-            float wheelMove = GetMouseWheelMove();
-            if (wheelMove != 0.0f) {
-                // Update your zoom or scroll offset based on wheelMove
-                gameCamera.camera.zoom += wheelMove * 0.1f;
-            }
-            if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) gameCamera.camera.zoom += 0.01f;
-            if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) gameCamera.camera.zoom -= 0.01f;
+    while (!WindowShouldClose())
+    {   
+        // ======================================================= //
+        // FIRST PASS - GAME LOGIC                                 //
+        // ======================================================= //
+        float deltaTime = GetFrameTime();
+        if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
+        if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
+        if(IsKeyPressed(KEY_H)) resetGame(platforms, player, gameCamera, score);
 
-            score +=  1.0f/10.0f;
-            player.update(platforms.platformArr);
-            //platforms.scrollPlatforms();
+        score +=  1.0f/10.0f;
+        player.update(platforms.platformArr);
 
-            //gameCamera.camera.target.x += ((player.position.x) - gameCamera.camera.target.x) * (1.55f * deltaTime);
-            gameCamera.camera.target.y += ((player.position.y) - gameCamera.camera.target.y) * (1.55f * deltaTime);
-
-            // ======================================================== //
-            // SECOND PASS - CREATING LIGHT MAP                         //
-            // ======================================================== //
-
-            BeginTextureMode(lightMap);
-            // {
-                ClearBackground(LIGHTGRAY); // screen tint (black for complete dark, etc.)
-                BeginBlendMode(BLEND_ADDITIVE); 
-                // {
-                    Functions::drawLightCircle({GetWorldToScreen2D(player.position, gameCamera.camera)}, 115.0f, Fade(YELLOW, 0.60f), BLANK);
-                // }
-                EndBlendMode();
-            // }
-            EndTextureMode();
-
-            // ========================================================= //
-            // THIRD PASS - CREATING TARGET TEXTURE (DRAWNING to SCREEN) //
-            // ========================================================= //
-
-            BeginTextureMode(target);
-            // {
-                // 2D mode - where game is drawn to virtual screen
-                BeginMode2D(gameCamera.camera);
-
-                    Functions::drawBackground();
-                    platforms.drawPlatforms();          
-                    player.drawPlayer();
-                    player.drawBullets();
-                
-                EndMode2D();
-            
-                // Light/pixel blending
-                BeginBlendMode(BLEND_MULTIPLIED);
-                // {
-                    DrawTextureRec(lightMap.texture, 
-                                   Rectangle{0.0f,0.0f, static_cast<float>(lightMap.texture.width), -static_cast<float>(lightMap.texture.height)}, 
-                                   Vector2{0.0f, 0.0f},
-                                   WHITE);
-                // }
-                EndBlendMode();
-            // }
-            EndTextureMode();
-
-            // ======================================================== //
-            // FOURTH PASS - DRAW COMPLETED GAME TEXTURE                //
-            // ======================================================== //
-
-            BeginDrawing();
-            // {
-                ClearBackground(BLACK);
-
-                scale = std::max(1.0f, std::min(static_cast<float>(GetRenderWidth())  / static_cast<float>(Globals::screenWidth),
-                                                static_cast<float>(GetRenderHeight()) / static_cast<float>(Globals::screenHeight)));      
-                                                 
-                offsetX = (static_cast<float>(GetRenderWidth()) - static_cast<float>(Globals::screenWidth) * scale) / 2.0f;
-                offsetY = (static_cast<float>(GetRenderHeight()) - static_cast<float>(Globals::screenHeight) * scale) / 2.0f;
-            
-                // final draw to screen
-                DrawTexturePro (
-                    target.texture,
-                    { 0.0f, 0.0f, static_cast<float>(target.texture.width), -static_cast<float>(target.texture.height) },
-                    { offsetX, offsetY, static_cast<float>(Globals::screenWidth) * scale, static_cast<float>(Globals::screenHeight) * scale },
-                    { 0.0f, 0.0f },
-                    0.0f,
-                    WHITE );
-
-                // UI (temp)
-                DrawText(TextFormat("Score: %d", static_cast<int>(score)),
-                         20 * scale, 20, 20 * scale, YELLOW);
-                DrawText("F11: Fullscreen", 10, 80, 20 * scale, YELLOW);
-                DrawText(TextFormat("Current Zoom: %f", gameCamera.camera.zoom), 10, 120, 20 * scale, YELLOW);
-
-            // }
-            EndDrawing();
+        //gameCamera.camera.target.x += ((player.position.x) - gameCamera.camera.target.x) * (1.55f * deltaTime);
+        if(player.position.y < biggestY) biggestY = player.position.y;
+        Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
+        if(playerScreenPos.y > Globals::screenHeight) {
+            resetGame(platforms, player, gameCamera, score);
+            biggestY = 440.0f;
         }
+        gameCamera.camera.target.y += ((biggestY) - gameCamera.camera.target.y) * (1.55f * deltaTime);
+        
 
-        UnloadRenderTexture(lightMap);
-        UnloadRenderTexture(target);
+        // ======================================================== //
+        // SECOND PASS - CREATING LIGHT MAP                         //
+        // ======================================================== //
+
+        BeginTextureMode(lightMap);
+        // {
+            ClearBackground(LIGHTGRAY); // screen tint (black for complete dark, etc.)
+            BeginBlendMode(BLEND_ADDITIVE); 
+            // {
+                Functions::drawLightCircle({GetWorldToScreen2D(player.position, gameCamera.camera)}, 115.0f, Fade(YELLOW, 0.60f), BLANK);
+            // }
+            EndBlendMode();
+        // }
+        EndTextureMode();
+
+        // ========================================================= //
+        // THIRD PASS - CREATING TARGET TEXTURE (DRAWNING to SCREEN) //
+        // ========================================================= //
+
+        BeginTextureMode(target);
+        // {
+            // 2D mode - where game is drawn to virtual screen
+            BeginMode2D(gameCamera.camera);
+
+                Functions::drawBackground();
+                platforms.drawPlatforms();          
+                player.drawPlayer();
+                player.drawBullets();
+            
+            EndMode2D();
+        
+            // Light/pixel blending
+            BeginBlendMode(BLEND_MULTIPLIED);
+            // {
+                DrawTextureRec(lightMap.texture, 
+                                Rectangle{0.0f,0.0f, static_cast<float>(lightMap.texture.width), -static_cast<float>(lightMap.texture.height)}, 
+                                Vector2{0.0f, 0.0f},
+                                WHITE);
+            // }
+            EndBlendMode();
+        // }
+        EndTextureMode();
+
+        // ======================================================== //
+        // FOURTH PASS - DRAW COMPLETED GAME TEXTURE                //
+        // ======================================================== //
+
+        BeginDrawing();
+        // {
+            ClearBackground(BLACK);
+
+            scale = std::max(1.0f, std::min(static_cast<float>(GetRenderWidth())  / static_cast<float>(Globals::screenWidth),
+                                            static_cast<float>(GetRenderHeight()) / static_cast<float>(Globals::screenHeight)));      
+                                                
+            offsetX = (static_cast<float>(GetRenderWidth()) - static_cast<float>(Globals::screenWidth) * scale) / 2.0f;
+            offsetY = (static_cast<float>(GetRenderHeight()) - static_cast<float>(Globals::screenHeight) * scale) / 2.0f;
+        
+            // final draw to screen
+            DrawTexturePro (
+                target.texture,
+                { 0.0f, 0.0f, static_cast<float>(target.texture.width), -static_cast<float>(target.texture.height) },
+                { offsetX, offsetY, static_cast<float>(Globals::screenWidth) * scale, static_cast<float>(Globals::screenHeight) * scale },
+                { 0.0f, 0.0f },
+                0.0f,
+                WHITE );
+
+            // UI (temp)
+            DrawText(TextFormat("Score: %d", static_cast<int>(score)),
+                        20 * scale, 20, 20 * scale, YELLOW);
+            DrawText("F11: Fullscreen", 10, 80, 20 * scale, YELLOW);
+            DrawText(TextFormat("Current Zoom: %f", gameCamera.camera.zoom), 10, 120, 20 * scale, YELLOW);
+
+        // }
+        EndDrawing();
     }
+
+    UnloadRenderTexture(lightMap);
+    UnloadRenderTexture(target);
 
     CloseWindow();
     return 0;

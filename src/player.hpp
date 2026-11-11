@@ -19,9 +19,9 @@ class Player {
         Player(Player&&) = delete;
         Player& operator=(Player&&) = delete;
 
-        void update(std::array<Globals::Platform, 90>& platforms);
+        void update(std::array<Platform, 90>& platforms);
         void updateMovement();
-        void checkCollisions(std::array<Globals::Platform, 90>& platforms);
+        void checkCollisions(std::array<Platform, 90>& platforms);
         void shootBullets();
         void drawPlayer();
         void drawBullets();
@@ -40,10 +40,22 @@ class Player {
         float rightHoldTime{};
         float jumpHoldTime{};
         float previousY{};
+        
+        const float gravity{0.5f};
+        const float groundAcceleration{0.9f};
+        const float groundFriction{0.75f};
+        const float airAcceleration{0.6f};
+        const float airFriction{0.85f};
+        const float wallRiseFriction{1.00f};
+        const float wallFallFriction{0.70f};
+        const float movementPressDelay{5.0f / Globals::referenceFPS}; // 5 frames/sec
+        const float maxJumpHoldTime{10.0f / Globals::referenceFPS};
+        const float jumpHoldForce{0.9f};
+        
         Vector2 position{480.0f, 440.0f}; // center of player (not sprite top-left)
         Vector2 velocity{};
 
-        std::vector<Globals::Bullet> bullets;
+        std::vector<Bullet> bullets;
         std::vector<Rectangle> bulletRects;
         Texture2D bulletTexture{};
         float bulletRotation{};

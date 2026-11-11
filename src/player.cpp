@@ -33,7 +33,7 @@ Player::~Player() {
     if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(std::array<Globals::Platform, 90>& platforms) {
+void Player::update(std::array<Platform, 90>& platforms) {
     updateMovement();
     checkCollisions(platforms);
 
@@ -73,7 +73,7 @@ void Player::updateMovement(){
     deltaTime = std::min(deltaTime, 0.05f);
     // At 60 FPS: deltaTime = 1/60, frameScale = 1
     const float frameScale = deltaTime * Globals::referenceFPS;
-    Vector2 appliedForces = {0.0f, Globals::gravity};
+    Vector2 appliedForces = {0.0f, gravity};
 
     // ================== //
     // INPUT              //
@@ -152,24 +152,24 @@ void Player::updateMovement(){
     // DNYMC JUMP HEIGHT  //
     // ================== //
 
-    if (jumpHeld && (jumpHoldTime < Globals::maxJumpHoldTime) && isJumping && velocity.y < 0.0f)
+    if (jumpHeld && (jumpHoldTime <maxJumpHoldTime) && isJumping && velocity.y < 0.0f)
     {
-        appliedForces.y -= Globals::jumpHoldForce;
+        appliedForces.y -= jumpHoldForce;
     }
 
     // ================== //
     // GROUND CONTROL     //
     // ================== //
 
-    if (movingRight && (rightHoldTime > Globals::movementPressDelay) && !isGlidingRight && isOnGround)
+    if (movingRight && (rightHoldTime > movementPressDelay) && !isGlidingRight && isOnGround)
     {
-        appliedForces.x += Globals::groundAcceleration;
+        appliedForces.x += groundAcceleration;
         isGlidingLeft = false;
     }
 
-    if (movingLeft && (leftHoldTime > Globals::movementPressDelay) &&!isGlidingLeft && isOnGround)
+    if (movingLeft && (leftHoldTime > movementPressDelay) &&!isGlidingLeft && isOnGround)
     {
-        appliedForces.x -= Globals::groundAcceleration;
+        appliedForces.x -= groundAcceleration;
         isGlidingRight = false;
     }
 
@@ -177,15 +177,15 @@ void Player::updateMovement(){
     // AIR CONTROL        //
     // ================== //
 
-    if (movingRight && (rightHoldTime > Globals::movementPressDelay) && !isGlidingRight && !isOnGround)
+    if (movingRight && (rightHoldTime > movementPressDelay) && !isGlidingRight && !isOnGround)
     {
-        appliedForces.x += Globals::airAcceleration;
+        appliedForces.x += airAcceleration;
         isGlidingLeft = false;
     }
 
-    if (movingLeft && (leftHoldTime > Globals::movementPressDelay)  && !isGlidingLeft && !isOnGround)
+    if (movingLeft && (leftHoldTime > movementPressDelay)  && !isGlidingLeft && !isOnGround)
     {
-        appliedForces.x -= Globals::airAcceleration;
+        appliedForces.x -= airAcceleration;
         isGlidingRight = false;
     }
 
@@ -201,18 +201,18 @@ void Player::updateMovement(){
     // FRICTION           //
     // ================== //
 
-    float horizontalFriction = isOnGround ? Globals::groundFriction : Globals::airFriction;
+    float horizontalFriction = isOnGround ? groundFriction : airFriction;
     float verticalFriction = 1.0f;
 
     if (isGlidingLeft || isGlidingRight)
     {
         if (velocity.y <= 0.0f)
         {
-            verticalFriction = Globals::wallRiseFriction;
+            verticalFriction = wallRiseFriction;
         }
         else
         {
-            verticalFriction = Globals::wallFallFriction;
+            verticalFriction = wallFallFriction;
         }
     }
 
@@ -247,9 +247,10 @@ void Player::updateMovement(){
     position.y += velocity.y * frameScale;
 
     maxHorizontalVelocity = 13.0f;
+
 }
 
-void Player::checkCollisions(std::array<Globals::Platform, 90>& platforms){
+void Player::checkCollisions(std::array<Platform, 90>& platforms){
     // ======================//
     // RESET COLLISION STATE //
     // ======================//
