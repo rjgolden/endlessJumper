@@ -8,12 +8,13 @@
 #include "platforms.hpp"
 #include "gameCamera.hpp"
 
-void resetGame(Platforms &platforms, Player &player, GameCamera &gameCamera, float &score, float &biggestY){
+void resetGame(Platforms &platforms, Player &player, GameCamera &gameCamera, float &score, float &biggestY, int &deaths){
     platforms.resetPlatforms();
     player.position = {480.0f, 440.0f};
     gameCamera.camera.target = {(Globals::screenWidth/2), (Globals::screenHeight/2)};
     score = 0.0f;
     biggestY = 440.0f;
+    deaths += 1;
 }
 
 int main()
@@ -31,6 +32,7 @@ int main()
     float offsetX{0.0f};
     float offsetY{0.0f};
     float biggestY{440.0f};
+    int deaths{0};
 
     RenderTexture2D lightMap = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
     SetTextureFilter(lightMap.texture, TEXTURE_FILTER_POINT);
@@ -46,13 +48,13 @@ int main()
         float deltaTime = GetFrameTime();
         if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
         if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
-        if(IsKeyPressed(KEY_H)) resetGame(platforms, player, gameCamera, score, biggestY);
+        if(IsKeyPressed(KEY_H)) resetGame(platforms, player, gameCamera, score, biggestY, deaths);
 
         score +=  1.0f/10.0f;
         player.update(platforms.platformArr);
 
         Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
-        if(playerScreenPos.y > Globals::screenHeight) resetGame(platforms, player, gameCamera, score, biggestY);
+        if(playerScreenPos.y > Globals::screenHeight) resetGame(platforms, player, gameCamera, score, biggestY, deaths);
         if(player.position.y < biggestY) biggestY = player.position.y;
         gameCamera.camera.target.y += ((biggestY) - gameCamera.camera.target.y) * (1.55f * deltaTime);
         
@@ -123,8 +125,9 @@ int main()
                 WHITE );
 
             // UI (temp)
-            DrawText(TextFormat("Score: %d", static_cast<int>(score)), 20 * scale, 20, 20 * scale, YELLOW);
-            DrawText("F11: Fullscreen", 10, 80, 20 * scale, YELLOW);
+            DrawText(TextFormat("Score: %d", static_cast<int>(score)), 20*scale, 20*scale, 20*scale, YELLOW);
+            DrawText(TextFormat("Deaths: %d", static_cast<int>(deaths)), 20*scale, 40*scale, 20*scale, YELLOW);
+            DrawText("F11: Fullscreen", 10 * scale, 60 * scale, 20 * scale, YELLOW);
         // }
         EndDrawing();
     }
