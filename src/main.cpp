@@ -5,17 +5,8 @@
 #include "palette.hpp"
 #include "player.hpp"
 #include "globals.hpp"
-#include "platforms.hpp"
+#include "floor.hpp"
 #include "gameCamera.hpp"
-
-void resetGame(Platforms &platforms, Player &player, GameCamera &gameCamera, float &score, float &biggestY, int &deaths){
-    platforms.resetPlatforms();
-    player.position = {480.0f, 440.0f};
-    gameCamera.camera.target = {(Globals::screenWidth/2), (Globals::screenHeight/2)};
-    score = 0.0f;
-    biggestY = 440.0f;
-    deaths += 1;
-}
 
 int main()
 {
@@ -23,16 +14,14 @@ int main()
     InitWindow(Globals::screenWidth, Globals::screenHeight, "meatJumpShooter");
     SetTargetFPS(144);
 
+    Floor floor;
     Player player;
-    Platforms platforms;
     GameCamera gameCamera;
 
     float score{0.0f};
     float scale{1.0f};
     float offsetX{0.0f};
     float offsetY{0.0f};
-    float biggestY{440.0f};
-    int deaths{0};
 
     RenderTexture2D lightMap = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
     SetTextureFilter(lightMap.texture, TEXTURE_FILTER_POINT);
@@ -48,15 +37,15 @@ int main()
         float deltaTime = GetFrameTime();
         if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
         if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
-        if(IsKeyPressed(KEY_H)) resetGame(platforms, player, gameCamera, score, biggestY, deaths);
+        if(IsKeyPressed(KEY_H)) floor.resetGame(player, gameCamera, score);
 
         score +=  1.0f/10.0f;
-        player.update(platforms.platformArr);
+        player.update(floor.platforms.platformArr);
 
         Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
-        if(playerScreenPos.y > Globals::screenHeight) resetGame(platforms, player, gameCamera, score, biggestY, deaths);
-        if(player.position.y < biggestY) biggestY = player.position.y;
-        gameCamera.camera.target.y += ((biggestY) - gameCamera.camera.target.y) * (1.55f * deltaTime);
+        if(playerScreenPos.y > Globals::screenHeight) floor.resetGame(player, gameCamera, score);
+        if(player.position.y < floor.biggestY) floor.biggestY = player.position.y;
+        gameCamera.camera.target.y += ((floor.biggestY) - gameCamera.camera.target.y) * (1.55f * deltaTime);
         
         // ======================================================== //
         // SECOND PASS - CREATING LIGHT MAP                         //
@@ -82,8 +71,8 @@ int main()
             // 2D mode - where game is drawn to virtual screen
             BeginMode2D(gameCamera.camera);
 
-                Functions::drawBackground();
-                platforms.drawPlatforms();          
+                floor.drawBackground();
+                floor.platforms.drawPlatforms();          
                 player.drawPlayer();
                 player.drawBullets();
             
@@ -126,7 +115,7 @@ int main()
 
             // UI (temp)
             DrawText(TextFormat("Score: %d", static_cast<int>(score)), 20*scale, 20*scale, 20*scale, YELLOW);
-            DrawText(TextFormat("Deaths: %d", static_cast<int>(deaths)), 20*scale, 40*scale, 20*scale, YELLOW);
+            DrawText(TextFormat("Deaths: %d", static_cast<int>(floor.deaths)), 20*scale, 40*scale, 20*scale, YELLOW);
             DrawText("F11: Fullscreen", 10 * scale, 60 * scale, 20 * scale, YELLOW);
         // }
         EndDrawing();
