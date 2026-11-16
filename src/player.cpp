@@ -69,9 +69,7 @@ void Player::setAnimationState(State newState) {
 void Player::updateMovement(){
 
     float deltaTime = GetFrameTime();
-    // Avoid a giant physics step if the window hangs, gets dragged, debugger pauses, etc.
     deltaTime = std::min(deltaTime, 0.05f);
-    // At 60 FPS: deltaTime = 1/60, frameScale = 1
     const float frameScale = deltaTime * Globals::referenceFPS;
     Vector2 appliedForces = {0.0f, gravity};
 

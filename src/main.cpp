@@ -98,10 +98,8 @@ int main()
             // Light/pixel blending
             BeginBlendMode(BLEND_MULTIPLIED);
             // {
-                DrawTextureRec(lightMap.texture, 
-                                Rectangle{0.0f,0.0f, static_cast<float>(lightMap.texture.width), -static_cast<float>(lightMap.texture.height)}, 
-                                Vector2{0.0f, 0.0f},
-                                WHITE);
+                DrawTextureRec(lightMap.texture, {0.0f,0.0f, static_cast<float>(lightMap.texture.width), -static_cast<float>(lightMap.texture.height)}, 
+                              {0.0f, 0.0f}, WHITE);
             // }
             EndBlendMode();
         // }
