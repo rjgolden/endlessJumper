@@ -53,11 +53,11 @@ class Player {
         float jumpHoldTime{};
         float previousY{};
         
+        float airFriction{0.85f};
+        float airAcceleration{0.6f};
         const float gravity{0.5f};
         const float groundAcceleration{0.9f};
         const float groundFriction{0.75f};
-        const float airAcceleration{0.6f};
-        const float airFriction{0.85f};
         const float wallRiseFriction{1.00f};
         const float wallFallFriction{0.70f};
 
@@ -85,9 +85,11 @@ class Player {
         bool jumpPressed{};
         bool jumpButtonHeld{};
         bool jumpReleased{};
+        bool isWallJumping{};
         
         bool movingLeft{};
         bool movingRight{};
+        bool movingDown{};
         bool isGlidingLeft{};
         bool isGlidingRight{};
         bool leftWallJumped{true};

@@ -2,21 +2,25 @@
 #include "platforms.hpp"
 #include "player.hpp"
 #include "gameCamera.hpp"
+#include "globals.hpp"
 
 class Floor {
 
     public:
 
-        Floor() = default ;
-        ~Floor() = default ;
+        Floor() = default;
+        ~Floor() = default;
 
         void drawBackground();
         void resetGame(Player &player, GameCamera &gameCamera, float &score);
+        void drawCompleteZone();
+        float getEndHeight();
 
         float startingY{440.0f};
         float biggestY{440.0f};
-        float endY{-5400.0f};
+        float endHeight{-500.0f};
         int deaths{0};
+        bool ascending{true};
         
         Platforms platforms;
         //Enemy enemies;
@@ -26,5 +30,6 @@ class Floor {
     private:
 
         int currentFloor{0};
+        Rectangle completeZone{0, endHeight, Globals::screenWidth, 64.0f};
 
 };

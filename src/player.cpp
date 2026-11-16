@@ -119,40 +119,42 @@ void Player::updateMovement(){
         if (!isInAir && !isGlidingLeft && !isGlidingRight)
             velocity.y = -6.0f;
 
+        // Double Jump
+        if (isInAir && jumpReleased) velocity.y = -6.0f;
+
         // Left wall jump
         else if (isGlidingLeft  && leftWallJumped)
         {
-            velocity.y = -4.0f;
+            velocity.y = -16.0f;
             leftWallJumped = false;
             rightWallJumped = true;
-            maxHorizontalVelocity = 999.0f;
-
-            if (movingRight) velocity.x += 12.0f;
-            else velocity.x += 12.0f;
+            isWallJumping = true;
+            velocity.x += 12.0f;
+            airFriction = 0.95f;
         }
 
         // Right wall jump
         else if (isGlidingRight && rightWallJumped)
         {
-            velocity.y = -4.0f;
+            velocity.y = -16.0f;
             rightWallJumped = false;
             leftWallJumped = true;
-            maxHorizontalVelocity = 999.0f;
-
-            if (movingLeft) velocity.x -= 12.0f;
-            else velocity.x -= 12.0f;
+            isWallJumping = true;
+            velocity.x -= 12.0f;
+            airFriction = 0.95f;
         }
 
         isInAir = true;
         isOnGround = false;
         jumpRequested = false;
+
     }
 
     // ================== //
     // DNYMC JUMP HEIGHT  //
     // ================== //
 
-    if (canExtendJump && (jumpHoldTime <maxJumpHoldTime) && isInAir && velocity.y < 0.0f)
+    if (canExtendJump && (jumpHoldTime <maxJumpHoldTime) && isInAir && velocity.y < 0.0f && !isWallJumping)
     {
         appliedForces.y -= jumpHoldForce;
     }
@@ -179,12 +181,14 @@ void Player::updateMovement(){
 
     if (movingRight && (rightHoldTime > movementPressDelay) && !isGlidingRight && !isOnGround)
     {
+        if(isWallJumping) appliedForces.x += airAcceleration - airFriction;
         appliedForces.x += airAcceleration;
         isGlidingLeft = false;
     }
 
-    if (movingLeft && (leftHoldTime > movementPressDelay)  && !isGlidingLeft && !isOnGround)
-    {
+    if (movingLeft && (leftHoldTime > movementPressDelay) && !isGlidingLeft && !isOnGround)
+    {   
+        if(isWallJumping) appliedForces.x -= airAcceleration - airFriction;
         appliedForces.x -= airAcceleration;
         isGlidingRight = false;
     }
@@ -224,30 +228,16 @@ void Player::updateMovement(){
     velocity.y *= scaledVerticalFriction;
 
     // ================== //
-    // STOP SMALL MVMNT   //
-    // ================== //
-    
-    if (appliedForces.x == 0.0f && std::abs(velocity.x) < 1.0f) velocity.x = 0.0f;
-    
-    // ================== //
-    // SPEED CAPS         //
-    // ================== //
-
-    velocity.x = std::clamp(velocity.x, -maxHorizontalVelocity, maxHorizontalVelocity);
-    velocity.y = std::clamp(velocity.y, maxUpVelocity, maxDownVelocity);
-
-    // ================== //
     // MOVE               //
     // ================== //
+
+    if (appliedForces.x == 0.0f && std::abs(velocity.x) < 1.0f) velocity.x = 0.0f;
 
     position.x += velocity.x * frameScale;
 
     previousY = position.y;
 
     position.y += velocity.y * frameScale;
-
-    maxHorizontalVelocity = 13.0f;
-
 }
 
 void Player::checkCollisions(std::array<Platform, 90>& platforms){
@@ -269,7 +259,8 @@ void Player::checkCollisions(std::array<Platform, 90>& platforms){
     for (auto& platform : platforms)
     {
 
-        if(platform.blocking) continue;
+        if(platform.falsePlatform) continue;
+        if(movingDown) continue;
 
         float platformTop = platform.rect.y;
         float playerBottom = position.y + halfHeight;
@@ -289,6 +280,8 @@ void Player::checkCollisions(std::array<Platform, 90>& platforms){
             leftWallJumped = true;
             rightWallJumped = true;
             platform.onPlatform = true;
+            isWallJumping = false;
+            airFriction = 0.85f;
             break;
         }
         if(!isOnGround) platform.onPlatform = false;
@@ -308,9 +301,12 @@ void Player::checkCollisions(std::array<Platform, 90>& platforms){
 
         leftWallJumped = true;
         rightWallJumped = true;
+        isWallJumping = false;
 
         canExtendJump = false;
         jumpHoldTime = 0.0f;
+
+        airFriction = 0.85;
     }
 
     // ================== //
@@ -322,8 +318,7 @@ void Player::checkCollisions(std::array<Platform, 90>& platforms){
         position.x = 176.0f;
         velocity.x = 0.0f;
 
-        if (!isOnGround)
-            isGlidingLeft = true;
+        if (!isOnGround) isGlidingLeft = true;
     }
 
     // ================== //
@@ -335,8 +330,7 @@ void Player::checkCollisions(std::array<Platform, 90>& platforms){
         position.x = 784.0f;
         velocity.x = 0.0f;
 
-        if (!isOnGround)
-            isGlidingRight = true;
+        if (!isOnGround) isGlidingRight = true;
     }
 
     // ================== //
@@ -413,6 +407,7 @@ void Player::shootBullets(){
 void Player::getMovementInputKeyboard(){
     movingLeft = IsKeyDown(KEY_A);
     movingRight = IsKeyDown(KEY_D);
+    movingDown = IsKeyDown(KEY_S);
     jumpPressed = IsKeyPressed(KEY_SPACE);
     jumpButtonHeld = IsKeyDown(KEY_SPACE);
     jumpReleased =  IsKeyReleased(KEY_SPACE);
@@ -421,6 +416,7 @@ void Player::getMovementInputKeyboard(){
 void Player::getMovementInputController(){
     if(!movingLeft) movingLeft = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
     if(!movingRight) movingRight = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
+    if(!movingDown) movingDown = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
     if(!jumpPressed) jumpPressed = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
     if(!jumpButtonHeld) jumpButtonHeld = IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
     if(!jumpReleased) jumpReleased =  IsGamepadButtonReleased(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
@@ -478,7 +474,7 @@ void Player::drawBullets() {
         DrawCircleLines(bullet.position.x, bullet.position.y, bullet.bulletRadius, GREEN);
 
     for (auto& bullet : bullets) {
-        bullet.rotation += 1.0;
+        bullet.rotation += 2.0;
         if(bullet.rotation > 360.0f) bullet.rotation = 0.0f;
         DrawTextureEx(bulletTexture, bullet.position, bullet.rotation, 1.0f, WHITE);
     }

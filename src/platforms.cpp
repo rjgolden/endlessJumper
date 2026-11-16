@@ -1,3 +1,4 @@
+#include <algorithm> 
 #include "platforms.hpp"
 
 Platforms::Platforms() {
@@ -16,8 +17,8 @@ void Platforms::resetPlatforms() {
     for (size_t i{1}; i < platformArr.size(); i++) {
         platformArr[i].rect = generatePlatform(platformArr[i-1].rect);
         platformArr[i].onPlatform = false;
-        platformArr[i].blocking = false;
-        if(GetRandomValue(1, 10) == 1) platformArr[i].blocking = true; // 10% chance
+        platformArr[i].falsePlatform = false;
+        if(GetRandomValue(1, 10) == 1) platformArr[i].falsePlatform = true; // 10% chance
     }
 
 }
@@ -39,7 +40,7 @@ Rectangle Platforms::generatePlatform(const Rectangle& previous) {
 
 void Platforms::drawPlatforms(){
     for (auto& platform : platformArr) {
-        if(platform.blocking) platformColor = WHITE;
+        if(platform.falsePlatform) platformColor = WHITE;
         else platformColor = platform.onPlatform ? RED : GRAY;
         DrawRectangleLinesEx(platform.rect, 2.0f, platformColor);
     }

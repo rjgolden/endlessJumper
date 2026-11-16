@@ -3,16 +3,11 @@
 
 void Floor::drawBackground(){
     ClearBackground(BLACK);
-    // First
-    DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);
-    // Middle 
-    DrawRectangle(165, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN);
-    // Last
-    DrawRectangle(795, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);
-    // Floor
-    DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK);
+    DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);          // First  
+    DrawRectangle(165, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
+    DrawRectangle(795, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);        // Last  
+    DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK);                 // Floor
 }
-
 
 void Floor::resetGame(Player &player, GameCamera &gameCamera, float &score){
     platforms.resetPlatforms();
@@ -21,4 +16,13 @@ void Floor::resetGame(Player &player, GameCamera &gameCamera, float &score){
     score = 0.0f;
     biggestY = 440.0f;
     deaths += 1;
+    ascending = 1;
+}
+
+float Floor::getEndHeight(){
+    return endHeight;
+}
+
+void Floor::drawCompleteZone(){
+    DrawRectangleRec(completeZone, {50, 205, 50, 178});      
 }

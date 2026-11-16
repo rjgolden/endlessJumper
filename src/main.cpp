@@ -43,9 +43,25 @@ int main()
         player.update(floor.platforms.platformArr);
 
         Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
-        if(playerScreenPos.y > Globals::screenHeight) floor.resetGame(player, gameCamera, score);
-        if(player.position.y < floor.biggestY) floor.biggestY = player.position.y;
-        gameCamera.camera.target.y += ((floor.biggestY) - gameCamera.camera.target.y) * (1.55f * deltaTime);
+
+        if(playerScreenPos.y > Globals::screenHeight && floor.ascending) {
+            floor.resetGame(player, gameCamera, score);
+        }
+
+        if(player.position.y < floor.biggestY) {
+            floor.biggestY = player.position.y;
+        }
+
+        if(player.position.y < floor.getEndHeight() + 64.0f) {
+            floor.ascending = false;
+        }
+
+        float speed = fabs(player.velocity.y);
+        float followSpeed = 1.55f + speed * 0.15f;
+        followSpeed = std::clamp(followSpeed, 1.55f, 8.0f);
+        float targetY = floor.ascending ? floor.biggestY : player.position.y;
+
+        gameCamera.camera.target.y += (targetY - gameCamera.camera.target.y) * (followSpeed * deltaTime);
         
         // ======================================================== //
         // SECOND PASS - CREATING LIGHT MAP                         //
@@ -72,7 +88,8 @@ int main()
             BeginMode2D(gameCamera.camera);
 
                 floor.drawBackground();
-                floor.platforms.drawPlatforms();          
+                floor.platforms.drawPlatforms();   
+                floor.drawCompleteZone();       
                 player.drawPlayer();
                 player.drawBullets();
             
@@ -116,7 +133,10 @@ int main()
             // UI (temp)
             DrawText(TextFormat("Score: %d", static_cast<int>(score)), 20*scale, 20*scale, 20*scale, YELLOW);
             DrawText(TextFormat("Deaths: %d", static_cast<int>(floor.deaths)), 20*scale, 40*scale, 20*scale, YELLOW);
-            DrawText("F11: Fullscreen", 10 * scale, 60 * scale, 20 * scale, YELLOW);
+            DrawText(TextFormat("Player Y: %d", static_cast<int>(player.position.y)), 20*scale, 60*scale, 20*scale, YELLOW);
+            DrawText("Ascending", 20*scale, 80*scale, 20*scale, floor.ascending ? GREEN : RED);
+            DrawText("F11: Fullscreen", 10*scale, 100*scale, 20*scale, YELLOW);
+
         // }
         EndDrawing();
     }
