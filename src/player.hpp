@@ -9,6 +9,7 @@
 
 class Collectible;
 class Platform;
+class Floor;
 
 struct Bullet {
     Vector2 position;
@@ -25,10 +26,10 @@ class Player {
         Player();
         ~Player();
 
-        void update(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr);
+        void update(Floor& floor);
         void updateMovement();
         void updateMovementDebug();
-        void checkCollisions(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr);
+        void checkCollisions(Floor& floor);
         void shootBullets();
 
         void drawPlayer();

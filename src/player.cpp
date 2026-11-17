@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include "collectibles.hpp"
 #include "platforms.hpp"
+#include "floor.hpp"
 
 Player::Player() {
 
@@ -35,14 +36,14 @@ Player::~Player() {
     if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr) {
+void Player::update(Floor& floor) {
     
     if(debugMovement) {
         updateMovementDebug();
     }   
     else{
         updateMovement();
-        checkCollisions(platformArr, collectibleArr);
+        checkCollisions(floor);
     }
     
     getShootingInputKeyboard();
@@ -256,7 +257,7 @@ void Player::updateMovement(){
 
 }
 
-void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr) {
+void Player::checkCollisions(Floor& floor) {
     // ======================//
     // RESET COLLISION STATE //
     // ======================//
@@ -272,7 +273,7 @@ void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platf
     // PLATFORM COLLISION //
     // ================== //
 
-    for (auto& platform : platformArr)
+    for (auto& platform : floor.platforms.platformArr)
     {
 
         if(platform.falsePlatform) continue;
@@ -365,11 +366,12 @@ void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platf
     // COLLECTIBLES       //
     // ================== //
 
-    for(auto& collectible : collectibleArr){
+    for(auto& collectible : floor.collectibles.collectibleArr){
         if(collectible.collected) continue;
         bool check = CheckCollisionCircleRec(collectible.position, collectible.radius, {position.x, position.y, width, height}); 
         if(check){
             TraceLog(LOG_INFO, "Collected!");
+            floor.score += 10;
             collectible.collected = true;
         }
     }
@@ -472,14 +474,10 @@ void Player::getShootingInputKeyboard() {
 }
 
 void Player::getShootingInputController() {
-    if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_UP))
-        shootingUp = true;
-    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_2))
-        shootingDown = true;
-    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT))
-        shootingLeft = true;
-    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT))
-        shootingRight = true;
+    if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) shootingUp = true;
+    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_2)) shootingDown = true;
+    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) shootingLeft = true;
+    else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) shootingRight = true;
 }
 
 void Player::drawPlayer() {
