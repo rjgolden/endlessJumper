@@ -1,4 +1,5 @@
 #include "gameCamera.hpp"
+#include <algorithm>
 
 GameCamera::GameCamera(){
     camera = {0};

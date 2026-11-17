@@ -1,5 +1,5 @@
-#include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "raylib.h"
 #include "functions.hpp"
 #include "palette.hpp"
@@ -14,10 +14,10 @@ int main()
     InitWindow(Globals::screenWidth, Globals::screenHeight, "meatJumpShooter");
     SetTargetFPS(144);
 
-    Floor floor;
     Player player;
     GameCamera gameCamera;
-
+    Floor floor;
+   
     float score{0.0f};
     float scale{1.0f};
     float offsetX{0.0f};
@@ -45,7 +45,7 @@ int main()
         }
 
         score +=  1.0f/10.0f;
-        player.update(floor.platforms.platformArr);
+        player.update(floor.platforms.platformArr, floor.collectibles.collectibleArr);
 
         Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
 
@@ -94,6 +94,7 @@ int main()
 
                 floor.drawBackground();
                 floor.platforms.drawPlatforms();   
+                floor.collectibles.drawCollectibles();
                 floor.drawCompleteZone();       
                 player.drawPlayer();
                 player.drawBullets();

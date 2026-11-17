@@ -1,6 +1,4 @@
 #pragma once
-#include <cmath>
-#include <algorithm>
 #include <raylib.h>
 #include "globals.hpp"
 

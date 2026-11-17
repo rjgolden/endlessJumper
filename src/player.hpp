@@ -6,7 +6,9 @@
 #include "raylib.h"
 #include "globals.hpp"
 #include "animator.hpp"
-#include "platforms.hpp"
+
+class Collectible;
+class Platform;
 
 struct Bullet {
     Vector2 position;
@@ -23,10 +25,10 @@ class Player {
         Player();
         ~Player();
 
-        void update(std::array<Platform, Globals::platformCount>& platforms);
+        void update(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr);
         void updateMovement();
         void updateMovementDebug();
-        void checkCollisions(std::array<Platform, Globals::platformCount>& platforms);
+        void checkCollisions(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr);
         void shootBullets();
 
         void drawPlayer();

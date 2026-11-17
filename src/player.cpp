@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <cmath>
 #include "raymath.h"
+#include "collectibles.hpp"
+#include "platforms.hpp"
 
 Player::Player() {
 
@@ -33,14 +35,14 @@ Player::~Player() {
     if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(std::array<Platform, Globals::platformCount>& platforms) {
+void Player::update(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr) {
     
     if(debugMovement) {
         updateMovementDebug();
     }   
     else{
         updateMovement();
-        checkCollisions(platforms);
+        checkCollisions(platformArr, collectibleArr);
     }
     
     getShootingInputKeyboard();
@@ -249,13 +251,12 @@ void Player::updateMovement(){
     if (appliedForces.x == 0.0f && std::abs(velocity.x) < 1.0f) velocity.x = 0.0f;
 
     position.x += velocity.x * frameScale;
-
     previousY = position.y;
-
     position.y += velocity.y * frameScale;
+
 }
 
-void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platforms){
+void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platformArr, std::array<Collectible, Globals::collectibleCount>& collectibleArr) {
     // ======================//
     // RESET COLLISION STATE //
     // ======================//
@@ -271,7 +272,7 @@ void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platf
     // PLATFORM COLLISION //
     // ================== //
 
-    for (auto& platform : platforms)
+    for (auto& platform : platformArr)
     {
 
         if(platform.falsePlatform) continue;
@@ -358,6 +359,19 @@ void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platf
 
         if (velocity.y < 0.0f)
             velocity.y = 0.0f;
+    }
+
+    // ================== //
+    // COLLECTIBLES       //
+    // ================== //
+
+    for(auto& collectible : collectibleArr){
+        if(collectible.collected) continue;
+        bool check = CheckCollisionCircleRec(collectible.position, collectible.radius, {position.x, position.y, width, height}); 
+        if(check){
+            TraceLog(LOG_INFO, "Collected!");
+            collectible.collected = true;
+        }
     }
 }
 

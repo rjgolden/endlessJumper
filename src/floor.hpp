@@ -1,8 +1,11 @@
 #pragma once
 #include "platforms.hpp"
-#include "player.hpp"
 #include "gameCamera.hpp"
 #include "globals.hpp"
+#include "collectibles.hpp"
+
+class Player;
+class GameCamera;
 
 class Floor {
 
@@ -22,8 +25,8 @@ class Floor {
         bool ascending{true};
         
         Platforms platforms;
+        Collectibles collectibles;
         //Enemy enemies;
-        //Collectibles collectibles;
         //hazards hazards;
 
     private:

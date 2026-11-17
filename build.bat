@@ -5,7 +5,7 @@ REM Define main variables
 SET MAKE_PATH=C:/raylib/w64devkit/bin/mingw32-make.exe
 SET RAYLIB_PATH=C:/raylib/raylib
 SET PROJECT_NAME=Game
-SET SOURCE_FILES=src/main.cpp src/player.cpp src/floor.cpp src/platforms.cpp src/functions.cpp src/gameCamera.cpp src/animator.cpp 
+SET SOURCE_FILES=src/main.cpp src/player.cpp src/floor.cpp src/platforms.cpp src/functions.cpp src/gameCamera.cpp src/animator.cpp src/collectibles.cpp
 
 REM Select build mode
 echo.

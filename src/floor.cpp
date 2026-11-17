@@ -1,5 +1,7 @@
 #include "floor.hpp"
 #include "palette.hpp"
+#include "player.hpp"
+
 
 Floor::Floor(){
     background = LoadTexture("src/resources/background.png");
