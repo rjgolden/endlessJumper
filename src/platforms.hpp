@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include "raylib.h"
+#include "globals.hpp"
 
 struct Platform {
     Rectangle rect{0};
@@ -18,7 +19,7 @@ class Platforms {
         void drawPlatforms();
         
         Rectangle generatePlatform(const Rectangle& previous);
-        std::array<Platform, 90> platformArr;
+        std::array<Platform, Globals::platformCount> platformArr;
 
     private:
 

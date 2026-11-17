@@ -37,7 +37,11 @@ int main()
         float deltaTime = GetFrameTime();
         if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
         if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
-        if(IsKeyPressed(KEY_H)) floor.resetGame(player, gameCamera, score);
+        if(IsKeyPressed(KEY_R)) floor.resetGame(player, gameCamera, score);
+        if(IsKeyPressed(KEY_M)) {
+            if(player.debugMovement) player.debugMovement = false;
+            else player.debugMovement = true;
+        }
 
         score +=  1.0f/10.0f;
         player.update(floor.platforms.platformArr);
@@ -134,6 +138,7 @@ int main()
             DrawText(TextFormat("Player Y: %d", static_cast<int>(player.position.y)), 20*scale, 60*scale, 20*scale, YELLOW);
             DrawText("Ascending", 20*scale, 80*scale, 20*scale, floor.ascending ? GREEN : RED);
             DrawText("F11: Fullscreen", 10*scale, 100*scale, 20*scale, YELLOW);
+            DrawText("Debug Mode", 20*scale, 120*scale, 20*scale, player.debugMovement ? GREEN : RED);
 
         // }
         EndDrawing();

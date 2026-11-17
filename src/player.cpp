@@ -15,7 +15,7 @@ Player::Player() {
         "src/resources/Animations/eyeball-attackDown.png"
     }};
 
-    bulletTexture = LoadTexture("src/bullet.png");
+    bulletTexture = LoadTexture("src/resources/bullet.png");
 
     for (std::size_t i = 0; i < ANIMATION_COUNT; ++i) {
         m_textures[i] = LoadTexture(animationPaths[i]);
@@ -33,9 +33,16 @@ Player::~Player() {
     if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(std::array<Platform, 90>& platforms) {
-    updateMovement();
-    checkCollisions(platforms);
+void Player::update(std::array<Platform, Globals::platformCount>& platforms) {
+    
+    if(debugMovement) {
+        updateMovementDebug();
+    }   
+    else{
+        updateMovement();
+        checkCollisions(platforms);
+    }
+    
 
     getShootingInputKeyboard();
     if (IsGamepadAvailable(0)) getShootingInputController();
@@ -64,6 +71,14 @@ void Player::setAnimationState(State newState) {
 
     m_currentState = newState;
     m_animator.play(m_animations[static_cast<std::size_t>(newState)]);
+}
+
+void Player::updateMovementDebug(){
+    getMovementInputKeyboard();
+    if(movingLeft) position.x -= 5.0f;
+    if(movingRight) position.x += 5.0f;
+    if(movingUp) position.y -= 5.0f;
+    if(movingDown) position.y += 5.0f;
 }
 
 void Player::updateMovement(){
@@ -114,11 +129,10 @@ void Player::updateMovement(){
     if (jumpRequested)
     {
         // Ground jump
-        if (!isInAir && !isGlidingLeft && !isGlidingRight)
-            velocity.y = -6.0f;
-
+        if (!isInAir && !isGlidingLeft && !isGlidingRight) velocity.y = -6.0f;
+          
         // Double Jump
-        if (isInAir && jumpReleased) velocity.y = -6.0f;
+        //if (isInAir && !isGlidingLeft && !isGlidingRight && ) velocity.y = -6.0f;
 
         // Left wall jump
         else if (isGlidingLeft  && leftWallJumped)
@@ -238,7 +252,7 @@ void Player::updateMovement(){
     position.y += velocity.y * frameScale;
 }
 
-void Player::checkCollisions(std::array<Platform, 90>& platforms){
+void Player::checkCollisions(std::array<Platform, Globals::platformCount>& platforms){
     // ======================//
     // RESET COLLISION STATE //
     // ======================//
@@ -406,6 +420,7 @@ void Player::getMovementInputKeyboard(){
     movingLeft = IsKeyDown(KEY_A);
     movingRight = IsKeyDown(KEY_D);
     movingDown = IsKeyDown(KEY_S);
+    movingUp = IsKeyDown(KEY_W);
     jumpPressed = IsKeyPressed(KEY_SPACE);
     jumpButtonHeld = IsKeyDown(KEY_SPACE);
     jumpReleased =  IsKeyReleased(KEY_SPACE);

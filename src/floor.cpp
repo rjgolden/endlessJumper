@@ -1,12 +1,33 @@
 #include "floor.hpp"
 #include "palette.hpp"
 
+Floor::Floor(){
+    background = LoadTexture("src/resources/background.png");
+    wallTile = LoadTexture("src/resources/wallTile.png");
+}
+
 void Floor::drawBackground(){
     ClearBackground(BLACK);
+    /*
     DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);          // First  
     DrawRectangle(165, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
     DrawRectangle(795, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);        // Last  
     DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK);                 // Floor
+    */
+    
+    DrawRectangle(0, -5400 - Globals::floorHeight, static_cast<int>(Globals::screenWidth), Globals::floorHeight, RED);         
+    float backgroundPlacement = Globals::ceilingHeight;
+    for(int i{0}; i<12; i++){
+        DrawTexture(background, 0, backgroundPlacement, WHITE);
+        backgroundPlacement += 540.0f;
+    }
+    float tilePlacement = Globals::ceilingHeight;
+    for(int i{0}; i<15*13; i++){
+        DrawTexture(wallTile, 0, tilePlacement, WHITE);
+        DrawTexture(wallTile, 795, tilePlacement, WHITE);
+        tilePlacement += 36.0f;
+    }
+    DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK); // Floor
 }
 
 void Floor::resetGame(Player &player, GameCamera &gameCamera, float &score){

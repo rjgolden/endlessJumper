@@ -23,9 +23,10 @@ class Player {
         Player();
         ~Player();
 
-        void update(std::array<Platform, 90>& platforms);
+        void update(std::array<Platform, Globals::platformCount>& platforms);
         void updateMovement();
-        void checkCollisions(std::array<Platform, 90>& platforms);
+        void updateMovementDebug();
+        void checkCollisions(std::array<Platform, Globals::platformCount>& platforms);
         void shootBullets();
 
         void drawPlayer();
@@ -38,6 +39,8 @@ class Player {
         
         Vector2 position{480.0f, 440.0f}; // center of player (not sprite top-left)
         Vector2 velocity{};
+
+        bool debugMovement{false};
 
     private:
 
@@ -90,6 +93,7 @@ class Player {
         bool movingLeft{};
         bool movingRight{};
         bool movingDown{};
+        bool movingUp{};
         bool isGlidingLeft{};
         bool isGlidingRight{};
         bool leftWallJumped{true};

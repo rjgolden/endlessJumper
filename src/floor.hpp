@@ -8,7 +8,7 @@ class Floor {
 
     public:
 
-        Floor() = default;
+        Floor();
         ~Floor() = default;
 
         void drawBackground();
@@ -21,6 +21,9 @@ class Floor {
         float endHeight{-500.0f};
         int deaths{0};
         bool ascending{true};
+
+        Texture2D background;
+        Texture2D wallTile;
         
         Platforms platforms;
         //Enemy enemies;
