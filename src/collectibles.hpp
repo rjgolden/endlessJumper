@@ -19,14 +19,8 @@ class Collectibles {
         Collectibles();
         ~Collectibles() = default;
         void drawCollectibles();
+        void resetCollectibles();
         std::array<Collectible, Globals::collectibleCount> collectibleArr = {};
-        std::array<Vector2, Globals::collectibleCount> collectiblePositions = {
-            Vector2{250, -1000}, 
-            Vector2{250, -1250}, 
-            Vector2{250, -1500},
-            Vector2{250, -1750},
-            Vector2{250, -2000},
-        };
-
+        std::array<Vector2, Globals::collectibleCount> collectiblePositions = {};
 
 };
