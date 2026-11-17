@@ -38,6 +38,7 @@ int main()
         if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
         if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
         if(IsKeyPressed(KEY_R)) floor.resetGame(player, gameCamera, score);
+        
         if(IsKeyPressed(KEY_M)) {
             if(player.debugMovement) player.debugMovement = false;
             else player.debugMovement = true;
