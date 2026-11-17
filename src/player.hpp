@@ -65,7 +65,7 @@ class Player {
         const float wallFallFriction{0.70f};
 
         const float movementPressDelay{5.0f / Globals::referenceFPS}; // 5 frames/sec
-        const float maxJumpHoldTime{12.0f / Globals::referenceFPS};
+        const float maxJumpHoldTime{14.0f / Globals::referenceFPS};
         const float jumpHoldForce{0.7f};
         
         std::vector<Bullet> bullets;

@@ -17,7 +17,7 @@ Player::Player() {
 
     bulletTexture = LoadTexture("src/resources/bullet.png");
 
-    for (std::size_t i = 0; i < ANIMATION_COUNT; ++i) {
+    for (std::size_t i = 0; i < ANIMATION_COUNT; i++) {
         m_textures[i] = LoadTexture(animationPaths[i]);
         
         // AnimationClip fields: texture pointer, frame count, fps, loop, random.
@@ -43,7 +43,6 @@ void Player::update(std::array<Platform, Globals::platformCount>& platforms) {
         checkCollisions(platforms);
     }
     
-
     getShootingInputKeyboard();
     if (IsGamepadAvailable(0)) getShootingInputController();
 
@@ -138,10 +137,11 @@ void Player::updateMovement(){
         else if (isGlidingLeft  && leftWallJumped)
         {
             velocity.y = -16.0f;
+            velocity.x += 12.0f;
             leftWallJumped = false;
             rightWallJumped = true;
             isWallJumping = true;
-            velocity.x += 12.0f;
+            
             airFriction = 0.95f;
         }
 
@@ -149,10 +149,12 @@ void Player::updateMovement(){
         else if (isGlidingRight && rightWallJumped)
         {
             velocity.y = -16.0f;
+            velocity.x -= 12.0f;
+
             rightWallJumped = false;
             leftWallJumped = true;
             isWallJumping = true;
-            velocity.x -= 12.0f;
+            
             airFriction = 0.95f;
         }
 
@@ -166,7 +168,7 @@ void Player::updateMovement(){
     // DNYMC JUMP HEIGHT  //
     // ================== //
 
-    if (canExtendJump && (jumpHoldTime <maxJumpHoldTime) && isInAir && velocity.y < 0.0f && !isWallJumping)
+    if (canExtendJump && (jumpHoldTime <maxJumpHoldTime) && isInAir && (velocity.y < 0.0f) && !isWallJumping)
     {
         appliedForces.y -= jumpHoldForce;
     }
@@ -181,7 +183,7 @@ void Player::updateMovement(){
         isGlidingLeft = false;
     }
 
-    if (movingLeft && (leftHoldTime > movementPressDelay) &&!isGlidingLeft && isOnGround)
+    if (movingLeft && (leftHoldTime > movementPressDelay) && !isGlidingLeft && isOnGround)
     {
         appliedForces.x -= groundAcceleration;
         isGlidingRight = false;
