@@ -17,8 +17,8 @@ class Floor {
 
         void drawBackground();
         void resetGame(Player &player, GameCamera &gameCamera);
-        void drawCompleteZone();
         void update(Player& player, GameCamera& gameCamera);
+        void drawCompleteZone();
         float getEndHeight();
 
         float score{0};
