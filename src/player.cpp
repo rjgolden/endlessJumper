@@ -138,6 +138,7 @@ void Player::updateMovement(){
         {
             velocity.y = -16.0f;
             velocity.x += 12.0f;
+
             leftWallJumped = false;
             rightWallJumped = true;
             isWallJumping = true;
@@ -211,7 +212,7 @@ void Player::updateMovement(){
     // APPLY FORCES       //
     // ================== //
 
-    // The original code applied forces twice; preserve that exact physics behavior.
+    // applied forces twice; similar to meatboy physics behavior.
     velocity.x += 2.0f * appliedForces.x * frameScale;
     velocity.y += 2.0f * appliedForces.y * frameScale;
 
@@ -468,19 +469,12 @@ void Player::getShootingInputController() {
 }
 
 void Player::drawPlayer() {
-    const AnimationClip& clip = m_animations[static_cast<std::size_t>(m_currentState)];
+    AnimationClip& clip = m_animations[static_cast<int>(m_currentState)];
 
-    if (clip.texture != nullptr && clip.texture->id != 0 && clip.frameCount > 0) {
-        const float frameWidth = static_cast<float>(clip.texture->width) / clip.frameCount;
-        const float frameHeight = static_cast<float>(clip.texture->height);
-        m_animator.draw({position.x - frameWidth * 0.5f,
-                         position.y - frameHeight * 0.5f});
-    }
-    else {
-        // Fallback if sprite sheets haven't been added at the specified paths.
-        DrawRectangle(static_cast<int>(position.x - width * 0.5f),
-                      static_cast<int>(position.y - height * 0.5f),
-                      static_cast<int>(width), static_cast<int>(height), RED);
+    if (clip.texture && clip.texture->id != 0 && clip.frameCount > 0) {
+        float frameWidth = static_cast<float>(clip.texture->width) / clip.frameCount;
+        float frameHeight = static_cast<float>(clip.texture->height);
+        m_animator.draw({position.x - frameWidth * 0.5f, position.y - frameHeight * 0.5f});
     }
 }
 

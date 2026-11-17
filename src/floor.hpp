@@ -18,12 +18,8 @@ class Floor {
 
         float startingY{440.0f};
         float biggestY{440.0f};
-        float endHeight{-500.0f};
         int deaths{0};
         bool ascending{true};
-
-        Texture2D background;
-        Texture2D wallTile;
         
         Platforms platforms;
         //Enemy enemies;
@@ -33,6 +29,9 @@ class Floor {
     private:
 
         int currentFloor{0};
+        float endHeight{-500.0f};
         Rectangle completeZone{0, endHeight, Globals::screenWidth, 64.0f};
+        Texture2D background;
+        Texture2D wallTile;
 
 };

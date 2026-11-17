@@ -1,11 +1,10 @@
 
 #include "animator.hpp"
 
-/*-------------------------------*/
-void Animator::play(const AnimationClip& clip) {
+/*--------PLAY----------------------*/
+void Animator::play(AnimationClip& clip) {
 
-    if (m_currentClip == &clip)
-        return;
+    if (m_currentClip == &clip) return;
 
     m_currentClip = &clip;
     m_currentFrame = 0;
@@ -16,13 +15,11 @@ void Animator::play(const AnimationClip& clip) {
 /*--------UPDATE-----------------*/
 void Animator::update(float deltaTime) {
 
-    if (!m_currentClip || m_finished)
-        return;
+    if (!m_currentClip || m_finished) return;
 
     const AnimationClip& clip = *m_currentClip;
 
-    if (clip.fps <= 0.0f || clip.frameCount <= 0)
-        return;
+    if (clip.fps <= 0.0f || clip.frameCount <= 0) return;
 
     m_runningTime += deltaTime;
 
@@ -53,46 +50,20 @@ void Animator::update(float deltaTime) {
 }
 
 /*--------DRAW-------------------*/
-void Animator::draw(Vector2 position, float rotation) const {
+void Animator::draw(Vector2 position, float rotation) {
 
-    if (!m_currentClip || !m_currentClip->texture)
-        return;
+    if (!m_currentClip || !m_currentClip->texture) return;
 
     const AnimationClip& clip = *m_currentClip;
 
-    if (clip.frameCount <= 0 || clip.texture->id == 0)
-        return;
+    if (clip.frameCount <= 0 || clip.texture->id == 0) return;
 
-    // Calculate individual frame dimensions
-    const float frameWidth =
-        static_cast<float>(clip.texture->width) / clip.frameCount;
+    const float frameWidth = static_cast<float>(clip.texture->width) / clip.frameCount;
+    const float frameHeight = static_cast<float>(clip.texture->height);
 
-    const float frameHeight =
-        static_cast<float>(clip.texture->height);
+    Rectangle source = {m_currentFrame*frameWidth, 0.0f,frameWidth,  frameHeight};
 
-    // Source rectangle: current frame on the spritesheet
-    Rectangle source = {
-        m_currentFrame * frameWidth,
-        0.0f,
-        frameWidth,
-        frameHeight
-    };
+    Rectangle destination = {position.x, position.y, frameWidth, frameHeight};
 
-    // Destination rectangle: position and size on screen
-    Rectangle destination = {
-        position.x,
-        position.y,
-        frameWidth,
-        frameHeight
-    };
-
-    // Draw the current animation frame
-    DrawTexturePro(
-        *clip.texture,
-        source,
-        destination,
-        {0.0f, 0.0f},
-        rotation,
-        WHITE
-    );
+    DrawTexturePro(*clip.texture, source, destination, {0.0f, 0.0f}, rotation, WHITE);
 }
