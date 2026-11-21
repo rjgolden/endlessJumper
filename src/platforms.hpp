@@ -23,7 +23,7 @@ class Platforms {
 
     private:
 
-        float spacing{60.0f};
+        float spacing{40.0f};
         float platformHeight{10.0f};
         Color platformColor{};
 

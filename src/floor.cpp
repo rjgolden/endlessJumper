@@ -21,14 +21,15 @@ Floor::~Floor(){
 }
 
 void Floor::drawBackground(){
+
     ClearBackground(BLACK);
-    
+    /*
     DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);          // First  
     DrawRectangle(165, -static_cast<int>(Globals::screenHeight)*10, 630, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
     DrawRectangle(795, -static_cast<int>(Globals::screenHeight)*10, 165, static_cast<int>(Globals::screenHeight)*13, TAN);        // Last  
     DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK);                 // Floor
+    */
     
-    /*
     DrawRectangle(0, -5400 - Globals::floorHeight, static_cast<int>(Globals::screenWidth), Globals::floorHeight, RED);         
     float backgroundPlacement = Globals::ceilingHeight;
     for(int i{0}; i<12; i++){
@@ -41,53 +42,59 @@ void Floor::drawBackground(){
         DrawTexture(wallTile, 795, tilePlacement, WHITE);
         tilePlacement += 36.0f;
     }
-    DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK); // Floor */
+    DrawRectangle(165, static_cast<int>(Globals::floorY), 630, static_cast<int>(Globals::floorHeight)*10, BLACK); // Floor 
+    
+
 }
 
 void Floor::resetGame(Player &player, GameCamera &gameCamera){
 
     platforms.resetPlatforms();
     collectibles.resetCollectibles();
+    enemies.resetEnemies();
     player.position = {480.0f, 440.0f};
     gameCamera.camera.target = {(Globals::screenWidth/2), (Globals::screenHeight/2)};
     score = 0.0f;
     biggestY = 440.0f;
     deaths += 1;
-    ascending = 1;
+    ascending = true;
 
 }
 
 void Floor::update(Player& player, GameCamera& gameCamera){
 
+    // Controls
     float deltaTime = GetFrameTime();
     if(IsKeyPressed(KEY_F11)) Functions::toggleFullscreenWindow();
     if(IsKeyPressed(KEY_G)) gameCamera.shakeCamera();
     if(IsKeyPressed(KEY_R)) resetGame(player, gameCamera);
-    
     if(IsKeyPressed(KEY_M)) {
         if(player.debugMovement) player.debugMovement = false;
         else player.debugMovement = true;
     }
 
+    // Match camera speed to player velocity
     float speed = fabs(player.velocity.y);
     float followSpeed = 1.55f + speed * 0.15f;
     followSpeed = std::clamp(followSpeed, 1.55f, 8.0f);
-    float targetY = ascending ? biggestY : player.position.y;
 
+    // Get biggest current y for camera to follow
+    float targetY = ascending ? biggestY : player.position.y;
+    if(player.position.y < biggestY) biggestY = player.position.y;
+
+    // Check if player reached top (or current boundary)
+    if(player.position.y < getEndHeight() + 64.0f) ascending = false;
+    
+    // Check for death boundary (bottom of screen)
     Vector2 playerScreenPos = GetWorldToScreen2D(player.position, gameCamera.camera);
     if(playerScreenPos.y > Globals::screenHeight && ascending) {
             resetGame(player, gameCamera);
             score -= 5.0f;
     }
 
-    if(player.position.y < biggestY) {
-        biggestY = player.position.y;
-    }
+    enemies.chasePlayer(player.position);
 
-    if(player.position.y < getEndHeight() + 64.0f) {
-        ascending = false;
-    }
-
+    // Follow target or player 
     gameCamera.camera.target.y += (targetY - gameCamera.camera.target.y) * (followSpeed * deltaTime);
 }
 

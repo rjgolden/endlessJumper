@@ -11,14 +11,6 @@ class Collectible;
 class Platform;
 class Floor;
 
-struct Bullet {
-    Vector2 position;
-    Vector2 direction;
-    float rotation{0.0f};
-    float bulletSpeed{600.0f};
-    float bulletRadius{10.0f};
-};
-
 class Player {
 
     public:
@@ -31,6 +23,7 @@ class Player {
         void updateMovementDebug();
         void checkCollisions(Floor& floor);
         void shootBullets();
+        void checkBulletCollisions(Floor& floor);
 
         void drawPlayer();
         void drawBullets();
@@ -71,11 +64,11 @@ class Player {
         const float maxJumpHoldTime{14.0f / Globals::referenceFPS};
         const float jumpHoldForce{0.7f};
         
-        std::vector<Bullet> bullets;
+        std::vector<Globals::Projectile> bullets;
         std::vector<Rectangle> bulletRects;
         Texture2D bulletTexture{};
         float bulletRotation{};
-        float fireRate{10.0f};
+        float fireRate{4.0f};
         float shootTimer{};
         float angleStrength{0.5f};
         
@@ -83,6 +76,11 @@ class Player {
         bool shootingRight{};
         bool shootingUp{};
         bool shootingDown{};
+        bool shootingNE{};
+        bool shootingSE{};
+        bool shootingSW{};
+        bool shootingNW{};
+
 
         bool jumpRequested{};
         bool canExtendJump{};
@@ -113,6 +111,6 @@ class Player {
 
         std::array<Texture2D, ANIMATION_COUNT> m_textures{};
         std::array<AnimationClip, ANIMATION_COUNT> m_animations{};
-        Animator m_animator;
-        State m_currentState{State::IDLE};
+        Animator animator;
+        State currentState{State::IDLE};
 };

@@ -20,7 +20,7 @@ class Collectibles {
         ~Collectibles() = default;
         void drawCollectibles();
         void resetCollectibles();
-        std::array<Collectible, Globals::collectibleCount> collectibleArr = {};
-        std::array<Vector2, Globals::collectibleCount> collectiblePositions = {};
+        std::array<Collectible, Globals::collectibleCount> collectibleArr{};
+        std::array<Vector2, Globals::collectibleCount> collectiblePositions{};
 
 };

@@ -10,7 +10,7 @@ void Platforms::resetPlatforms() {
     platformArr[0].rect = {
         static_cast<float>(GetRandomValue(170, 720)),  // x
         static_cast<float>(GetRandomValue(380, 440)),  // y
-        static_cast<float>(GetRandomValue(50, 90)),    // w
+        static_cast<float>(GetRandomValue(200, 300)),    // w
         platformHeight                                 // h
     };
 
@@ -24,9 +24,9 @@ void Platforms::resetPlatforms() {
 }
 
 Rectangle Platforms::generatePlatform(const Rectangle& previous) {
-    float x{static_cast<float>(GetRandomValue(170, 720))};
+    float x{static_cast<float>(GetRandomValue(170, 520))};
     float y{previous.y - static_cast<float>(GetRandomValue(80, 100))};
-    float width{static_cast<float>(GetRandomValue(50, 90))};
+    float width{static_cast<float>(GetRandomValue(130, 230))};
     
     // Keep horizontal distance from the previous platform
     if (std::abs(x - previous.x) < spacing) {

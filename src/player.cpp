@@ -50,8 +50,9 @@ void Player::update(Floor& floor) {
     if (IsGamepadAvailable(0)) getShootingInputController();
 
     shootBullets();
+    checkBulletCollisions(floor);
     updateAnimationState(); 
-    m_animator.update(GetFrameTime());
+    animator.update(GetFrameTime());
 }
 
 void Player::updateAnimationState() {
@@ -69,10 +70,10 @@ void Player::updateAnimationState() {
 }
 
 void Player::setAnimationState(State newState) {
-    if (newState == m_currentState) return;
+    if (newState == currentState) return;
 
-    m_currentState = newState;
-    m_animator.play(m_animations[static_cast<std::size_t>(newState)]);
+    currentState = newState;
+    animator.play(m_animations[static_cast<std::size_t>(newState)]);
 }
 
 void Player::updateMovementDebug(){
@@ -273,7 +274,7 @@ void Player::checkCollisions(Floor& floor) {
     // PLATFORM COLLISION //
     // ================== //
 
-    for (auto& platform : floor.platforms.platformArr)
+    for (Platform& platform : floor.platforms.platformArr)
     {
 
         if(platform.falsePlatform) continue;
@@ -366,7 +367,7 @@ void Player::checkCollisions(Floor& floor) {
     // COLLECTIBLES       //
     // ================== //
 
-    for(auto& collectible : floor.collectibles.collectibleArr){
+    for(Collectible& collectible : floor.collectibles.collectibleArr){
         if(collectible.collected) continue;
         bool check = CheckCollisionCircleRec(collectible.position, collectible.radius, {position.x, position.y, width, height}); 
         if(check){
@@ -379,8 +380,8 @@ void Player::checkCollisions(Floor& floor) {
 
 void Player::shootBullets(){
 
-    float dt = GetFrameTime();
-    shootTimer -= dt;
+    float deltaTime = GetFrameTime();
+    shootTimer -= deltaTime;
 
     Vector2 center{position.x, position.y};
 
@@ -403,6 +404,22 @@ void Player::shootBullets(){
             bulletRotation = 0.0f;
             direction = {1.0f, 0.0f};
         }
+        else if (shootingNE){
+            bulletRotation = 90.0f;
+            direction = {1.0f, -1.0f};
+        }
+        else if (shootingSE){
+            bulletRotation = 270.0f;
+            direction = {1.0f, 1.0f};
+        }
+        else if (shootingSW){
+            bulletRotation = 180.0f;
+            direction = {-1.0f, 1.0f};
+        }
+        else if (shootingNW){
+            bulletRotation = 0.0f;
+            direction = {-1.0f, -1.0f};
+        }
 
         if (Vector2Length(direction) > 0.0f) {
             direction.y += (velocity.y / 200.0f) * angleStrength;
@@ -414,25 +431,55 @@ void Player::shootBullets(){
     }
 
     for (size_t i{}; i<bullets.size(); i++) {
-        bullets[i].position.x += bullets[i].direction.x * bullets[i].bulletSpeed * dt;
-        bullets[i].position.y += bullets[i].direction.y * bullets[i].bulletSpeed * dt;
+        bullets[i].position.x += bullets[i].direction.x * bullets[i].shotSpeed * deltaTime;
+        bullets[i].position.y += bullets[i].direction.y * bullets[i].shotSpeed * deltaTime;
         bulletRects[i].x = bullets[i].position.x;
         bulletRects[i].y = bullets[i].position.y;
     }
+}
+
+void Player::checkBulletCollisions(Floor& floor){
 
     // Remove bullets at window boundaries
     for (int i = static_cast<int>(bullets.size()) - 1; i >= 0; --i) {
-        Vector2 pos = bullets[i].position;
-        
-        if (pos.x - bullets[i].bulletRadius <= 160 ||
-            pos.x + bullets[i].bulletRadius >= 800 ||
-            pos.y - bullets[i].bulletRadius <= -5400 ||
-            pos.y + bullets[i].bulletRadius >= 500){
+        if (bullets[i].position.x - bullets[i].radius <= 160.0f ||
+            bullets[i].position.x + bullets[i].radius >= 800.0f ||
+            bullets[i].position.y - bullets[i].radius <= -5400.0f ||
+            bullets[i].position.y + bullets[i].radius >= 550.0f){
             bullets.erase(bullets.begin() + i);
             bulletRects.erase(bulletRects.begin() + i);
             continue;
         }
     }
+
+    for(Enemy& enemy : floor.enemies.enemyArr){
+        if(enemy.currentState == Enemy::State::DEAD) continue;
+        for (int i = static_cast<int>(bullets.size()) - 1; i >= 0; --i) {    
+            if(CheckCollisionCircles(enemy.position, enemy.radius, bullets[i].position, bullets[i].radius)){
+                
+                // Direction away from bullet
+                Vector2 direction = {enemy.position.x - bullets[i].position.x, enemy.position.y - bullets[i].position.y};
+
+                // Normalize direction
+                float length = sqrtf(direction.x * direction.x + direction.y * direction.y);
+
+                if (length > 0.001f) { direction.x /= length; direction.y /= length; } 
+                else direction = {enemy.position.x - bullets[i].position.x, enemy.position.y - bullets[i].position.y}; 
+            
+                enemy.knockbackVelocity.x = direction.x * bullets[i].knockbackStrength;
+                enemy.knockbackVelocity.y = direction.y * bullets[i].knockbackStrength;
+                
+                // Remove bullet
+                TraceLog(LOG_INFO, "Hit!");
+                bullets.erase(bullets.begin() + i);
+                bulletRects.erase(bulletRects.begin() + i);
+                enemy.currentHealth -= bullets[i].damage;
+                if(enemy.currentHealth <- 0.0f) enemy.currentState = Enemy::State::DEAD;
+                continue;  
+            }
+        }
+    }
+
 }
 
 void Player::getMovementInputKeyboard(){
@@ -466,10 +513,18 @@ void Player::getShootingInputKeyboard() {
     shootingDown = false;
     shootingLeft = false;
     shootingRight = false;
-
-    if (IsKeyDown(KEY_UP))         shootingUp = true;
-    else if (IsKeyDown(KEY_DOWN))  shootingDown = true;
-    else if (IsKeyDown(KEY_LEFT))  shootingLeft = true;
+    shootingNE = false;
+    shootingSE = false; 
+    shootingSW = false;
+    shootingNW = false;
+    
+    if (IsKeyDown(KEY_UP) && IsKeyDown(KEY_RIGHT)) shootingNE = true; // never
+    else if (IsKeyDown(KEY_DOWN) && IsKeyDown(KEY_RIGHT)) shootingSE = true; // eat
+    else if (IsKeyDown(KEY_DOWN) && IsKeyDown(KEY_LEFT)) shootingSW = true; // soggy
+    else if (IsKeyDown(KEY_UP) && IsKeyDown(KEY_LEFT)) shootingNW = true; // waffles
+    else if (IsKeyDown(KEY_UP)) shootingUp = true;
+    else if (IsKeyDown(KEY_DOWN)) shootingDown = true;
+    else if (IsKeyDown(KEY_LEFT)) shootingLeft = true;
     else if (IsKeyDown(KEY_RIGHT)) shootingRight = true;
 }
 
@@ -481,18 +536,18 @@ void Player::getShootingInputController() {
 }
 
 void Player::drawPlayer() {
-    AnimationClip& clip = m_animations[static_cast<int>(m_currentState)];
+    AnimationClip& clip = m_animations[static_cast<int>(currentState)];
 
     if (clip.texture && clip.texture->id != 0 && clip.frameCount > 0) {
         float frameWidth = static_cast<float>(clip.texture->width) / clip.frameCount;
         float frameHeight = static_cast<float>(clip.texture->height);
-        m_animator.draw({position.x - frameWidth * 0.5f, position.y - frameHeight * 0.5f});
+        animator.draw({position.x - frameWidth * 0.5f, position.y - frameHeight * 0.5f});
     }
 }
 
 void Player::drawBullets() {
     for (const auto& bullet : bullets)
-        DrawCircleLines(bullet.position.x, bullet.position.y, bullet.bulletRadius, GREEN);
+        DrawCircleLines(bullet.position.x, bullet.position.y, bullet.radius, BLUE);
 
     for (auto& bullet : bullets) {
         bullet.rotation += 2.0;

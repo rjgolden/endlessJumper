@@ -7,8 +7,7 @@
 #include "floor.hpp"
 #include "gameCamera.hpp"
 
-int main()
-{
+int main() {
 
     InitWindow(Globals::screenWidth, Globals::screenHeight, "meatJumpShooter");
     SetTargetFPS(144);
@@ -21,8 +20,8 @@ int main()
     float offsetX{0.0f};
     float offsetY{0.0f};
 
-    while (!WindowShouldClose())
-    {   
+    while (!WindowShouldClose()) {   
+        
         // ======================================================= //
         // FIRST PASS - GAME LOGIC                                 //
         // ======================================================= //
@@ -57,6 +56,7 @@ int main()
                 floor.drawBackground();
                 floor.platforms.drawPlatforms();   
                 floor.collectibles.drawCollectibles();
+                floor.enemies.drawEnemies();
                 floor.drawCompleteZone();       
                 player.drawPlayer();
                 player.drawBullets();

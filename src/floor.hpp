@@ -4,6 +4,7 @@
 #include "globals.hpp"
 #include "collectibles.hpp"
 #include "functions.hpp"
+#include "enemies.hpp"
 
 class Player;
 class GameCamera;
@@ -28,6 +29,7 @@ class Floor {
 
         Platforms platforms;
         Collectibles collectibles;
+        Enemies enemies;
         //Enemy enemies;
         //hazards hazards;
 
