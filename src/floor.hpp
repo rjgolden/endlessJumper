@@ -30,7 +30,6 @@ class Floor {
         Platforms platforms;
         Collectibles collectibles;
         Enemies enemies;
-        //Enemy enemies;
         //hazards hazards;
 
         RenderTexture2D lightMap;

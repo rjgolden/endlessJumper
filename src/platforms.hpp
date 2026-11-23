@@ -27,5 +27,4 @@ class Platforms {
         float platformHeight{10.0f};
         Color platformColor{};
 
-    
 };

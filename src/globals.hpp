@@ -10,6 +10,10 @@ namespace Globals {
     constexpr int enemyCount{5};
     constexpr float referenceFPS{60.0f};
     constexpr float floorHeight{40.0f};
+    constexpr float leftEdge{160.0f};
+    constexpr float rightEdge{800.0f};
+    constexpr float edgeWidth{leftEdge};
+    constexpr float middleWidth{640.0f};  
     constexpr float floorY{screenHeight - floorHeight};
     constexpr float ceilingHeight{-5400.0f};
     

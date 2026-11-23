@@ -5,12 +5,13 @@
 
 struct Enemy {
     Vector2 position{};
-    Vector2 velocity{50.0f, 50.0f};
+    Vector2 velocity{75.0f, 75.0f};
     Vector2 knockbackVelocity{};
     Rectangle healthBarRect{};
     enum class State {IDLE, CHASE, DEAD};
     State currentState{State::CHASE}; 
     float radius{16.0f};
+    float attackRadius{Globals::screenHeight};
     float startingHealth{70.0f};
     float currentHealth{};
     int hits = 7;

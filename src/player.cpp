@@ -283,26 +283,27 @@ void Player::checkCollisions(Floor& floor) {
         float platformTop = platform.rect.y;
         float playerBottom = position.y + halfHeight;
 
-        bool horizontalOverlap =
-            position.x + halfWidth > platform.rect.x &&
-            position.x - halfWidth < platform.rect.x + platform.rect.width;
-
+        bool horizontalOverlap = position.x + halfWidth > platform.rect.x && position.x - halfWidth < platform.rect.x + platform.rect.width;
         bool nearPlatform = std::abs(playerBottom - platformTop) < 5.0f;
 
         if (horizontalOverlap && nearPlatform && velocity.y >= 0.0f)
         {   
             position.y = platformTop - halfHeight+2.0f;
             velocity.y = 0.0f;
-            isOnGround = true;
+
             isInAir = false;
+            isOnGround = true;
+            platform.onPlatform = true;
+
             leftWallJumped = true;
             rightWallJumped = true;
-            platform.onPlatform = true;
             isWallJumping = false;
+        
             airFriction = 0.85f;
-            break;
         }
-        if(!isOnGround) platform.onPlatform = false;
+        if(!isOnGround) {
+            platform.onPlatform = false;
+        }
     }
 
     // ================== //
@@ -330,8 +331,8 @@ void Player::checkCollisions(Floor& floor) {
     // ================== //
     // LEFT WALL          //
     // ================== //
-
-    if (position.x <= 176.0f)
+    
+    if (position.x - halfWidth <= Globals::leftEdge)
     {
         position.x = 176.0f;
         velocity.x = 0.0f;
@@ -343,7 +344,7 @@ void Player::checkCollisions(Floor& floor) {
     // RIGHT WALL         //
     // ================== //
 
-    if (position.x >= 784.0f)
+    if (position.x + halfWidth >= Globals::rightEdge)
     {
         position.x = 784.0f;
         velocity.x = 0.0f;
@@ -355,12 +356,11 @@ void Player::checkCollisions(Floor& floor) {
     // CEILING            //
     // ================== //
 
-    if (position.y - halfHeight < Globals::ceilingHeight)
+    if (position.y - halfHeight <= Globals::ceilingHeight)
     {
         position.y = Globals::ceilingHeight;
 
-        if (velocity.y < 0.0f)
-            velocity.y = 0.0f;
+        if (velocity.y < 0.0f) velocity.y = 0.0f;
     }
 
     // ================== //

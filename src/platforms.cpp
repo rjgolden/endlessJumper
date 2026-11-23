@@ -10,7 +10,7 @@ void Platforms::resetPlatforms() {
     platformArr[0].rect = {
         static_cast<float>(GetRandomValue(170, 720)),  // x
         static_cast<float>(GetRandomValue(380, 440)),  // y
-        static_cast<float>(GetRandomValue(200, 300)),    // w
+        static_cast<float>(GetRandomValue(200, 300)),  // w
         platformHeight                                 // h
     };
 
