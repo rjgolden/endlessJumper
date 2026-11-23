@@ -14,7 +14,6 @@ struct Enemy {
     float attackRadius{Globals::screenHeight};
     float startingHealth{70.0f};
     float currentHealth{};
-    int hits = 7;
 };
 
 class Enemies {
