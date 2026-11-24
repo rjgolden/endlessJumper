@@ -9,7 +9,7 @@
 Player::Player() {
 
     constexpr std::array<const char*, Player::ANIMATION_COUNT> animationPaths = {{
-        "src/resources/Animations/eyeball-Idle.png",
+        "src/resources/Animations/playerIdle.png",
         "src/resources/Animations/eyeballMoveLeft.png",
         "src/resources/Animations/eyeballMoveRight.png",
         "src/resources/Animations/eyeballMoveUp.png",
@@ -19,8 +19,9 @@ Player::Player() {
     }};
 
     bulletTexture = LoadTexture("src/resources/bullet.png");
-
-    for (std::size_t i = 0; i < ANIMATION_COUNT; i++) {
+    m_textures[0] = LoadTexture(animationPaths[0]);
+    m_animations[0] = AnimationClip{&m_textures[0], 16, 12.0f, true, false};
+    for (std::size_t i = 1; i < ANIMATION_COUNT; i++) {
         m_textures[i] = LoadTexture(animationPaths[i]);
         
         // AnimationClip fields: texture pointer, frame count, fps, loop, random.
