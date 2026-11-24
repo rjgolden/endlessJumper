@@ -18,7 +18,8 @@ void Platforms::resetPlatforms() {
         platformArr[i].rect = generatePlatform(platformArr[i-1].rect);
         platformArr[i].onPlatform = false;
         platformArr[i].falsePlatform = false;
-        if(GetRandomValue(1, 10) == 1) platformArr[i].falsePlatform = true; // 10% chance
+        platformArr[i].goldNuggetsOnPlatform = false;
+        if(GetRandomValue(1, 10) == 1) platformArr[i].falsePlatform = true; // 10% chances
     }
 
 }
@@ -41,7 +42,8 @@ Rectangle Platforms::generatePlatform(const Rectangle& previous) {
 void Platforms::drawPlatforms(){
     for (auto& platform : platformArr) {
         if(platform.falsePlatform) platformColor = WHITE;
-        else platformColor = platform.onPlatform ? RED : GRAY;
+        else if(platform.goldNuggetsOnPlatform || platform.onPlatform) platformColor = RED;
+        else platformColor = GRAY;
         DrawRectangleLinesEx(platform.rect, 2.0f, platformColor);
     }
 }

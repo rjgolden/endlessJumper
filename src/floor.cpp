@@ -23,13 +23,13 @@ Floor::~Floor(){
 void Floor::drawBackground(){
 
     ClearBackground(BLACK);
-    
+     /*
     DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, Globals::edgeWidth, static_cast<int>(Globals::screenHeight)*13, TAN);          // First  
     DrawRectangle(Globals::leftEdge, -static_cast<int>(Globals::screenHeight)*10, Globals::middleWidth, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
     DrawRectangle(Globals::rightEdge, -static_cast<int>(Globals::screenHeight)*10, Globals::edgeWidth, static_cast<int>(Globals::screenHeight)*13, TAN);        // Last  
     DrawRectangle(Globals::leftEdge, static_cast<int>(Globals::floorY), Globals::middleWidth, static_cast<int>(Globals::floorHeight)*10, BLACK);                 // Floor
+    */
     
-    /*
     float backgroundPlacement = Globals::ceilingHeight;
     for(int i{0}; i<12; i++){
         DrawTexture(background, 0, backgroundPlacement, WHITE);
@@ -45,7 +45,7 @@ void Floor::drawBackground(){
 
      DrawRectangle(Globals::leftEdge, static_cast<int>(Globals::floorY), 640, static_cast<int>(Globals::floorHeight)*10, BLACK); // Floor   
      DrawRectangle(0, Globals::ceilingHeight - Globals::floorHeight, static_cast<int>(Globals::screenWidth), Globals::floorHeight, RED); // End goal
-     */
+     
 }
 
 void Floor::resetGame(Player &player, GameCamera &gameCamera){
@@ -53,6 +53,7 @@ void Floor::resetGame(Player &player, GameCamera &gameCamera){
     platforms.resetPlatforms();
     collectibles.resetCollectibles();
     enemies.resetEnemies();
+    particles.resetParticles();
     player.position = {480.0f, 440.0f};
     gameCamera.camera.target = {(Globals::screenWidth/2), (Globals::screenHeight/2)};
     score = 0.0f;

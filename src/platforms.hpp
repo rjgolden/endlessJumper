@@ -4,10 +4,11 @@
 #include "globals.hpp"
 
 struct Platform {
-    Rectangle rect{0};
-    bool onPlatform{false};
-    bool falsePlatform{false};
-    bool breakablePlatform{false};
+    Rectangle rect{};
+    bool onPlatform{};
+    bool goldNuggetsOnPlatform{};
+    bool falsePlatform{};
+    bool breakablePlatform{};
 };
 
 class Platforms {

@@ -371,9 +371,19 @@ void Player::checkCollisions(Floor& floor) {
         if(collectible.collected) continue;
         bool check = CheckCollisionCircleRec(collectible.position, collectible.radius, {position.x, position.y, width, height}); 
         if(check){
-            TraceLog(LOG_INFO, "Collected!");
+            //TraceLog(LOG_INFO, "Collected!");
             floor.score += 10;
             collectible.collected = true;
+        }
+    }
+    
+    for (Particle& particle : floor.particles.particlesArr) {
+        if (particle.life <= 0.0f) continue;
+        bool check = CheckCollisionCircleRec(particle.pos, 16.0f, {position.x, position.y, width, height});
+        if(check) {
+            //TraceLog(LOG_INFO, "Gold Collected!");
+            particle.life = 0.0f;
+            floor.score += 2 * particle.scale;
         }
     }
 }
@@ -469,12 +479,16 @@ void Player::checkBulletCollisions(Floor& floor){
                 enemy.knockbackVelocity.x = direction.x * bullets[i].knockbackStrength;
                 enemy.knockbackVelocity.y = direction.y * bullets[i].knockbackStrength;
                 
-                // Remove bullet
-                TraceLog(LOG_INFO, "Hit!");
+                // Remove bullet...
+                //TraceLog(LOG_INFO, "Hit!");
                 bullets.erase(bullets.begin() + i);
                 bulletRects.erase(bulletRects.begin() + i);
                 enemy.currentHealth -= bullets[i].damage;
-                if(enemy.currentHealth <- 0.0f) enemy.currentState = Enemy::State::DEAD;
+                if(enemy.currentHealth <- 0.0f) {
+                    //floor.particles.explode(enemy.position, RED, rand() % floor.particles.particleTextures.size()); //blood
+                    floor.particles.explodeNuggets(enemy.position, WHITE, 0);
+                    enemy.currentState = Enemy::State::DEAD;
+                }
                 continue;  
             }
         }

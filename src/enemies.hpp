@@ -11,7 +11,7 @@ struct Enemy {
     enum class State {IDLE, CHASE, DEAD};
     State currentState{State::CHASE}; 
     float radius{16.0f};
-    float attackRadius{Globals::screenHeight};
+    float attackRadius{270.0f};
     float startingHealth{70.0f};
     float currentHealth{};
 };

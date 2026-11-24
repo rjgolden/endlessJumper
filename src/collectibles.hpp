@@ -3,14 +3,12 @@
 #include <array>
 #include "globals.hpp"
 
-
 struct Collectible {
     Vector2 position{};
     float radius{20.0f};
     int type{};
     bool collected{};
 };
-
 
 class Collectibles {
 

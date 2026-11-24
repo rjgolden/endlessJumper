@@ -5,6 +5,7 @@
 #include "collectibles.hpp"
 #include "functions.hpp"
 #include "enemies.hpp"
+#include "particles.hpp"
 
 class Player;
 class GameCamera;
@@ -30,6 +31,7 @@ class Floor {
         Platforms platforms;
         Collectibles collectibles;
         Enemies enemies;
+        Particles particles;
         //hazards hazards;
 
         RenderTexture2D lightMap;

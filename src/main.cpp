@@ -6,6 +6,8 @@
 #include "globals.hpp"
 #include "floor.hpp"
 #include "gameCamera.hpp"
+#include "enemies.hpp"
+#include "particles.hpp"
 
 int main() {
 
@@ -28,6 +30,14 @@ int main() {
 
         floor.update(player, gameCamera);
         player.update(floor);
+
+        
+        if(IsMouseButtonPressed(1)) {
+            float x = GetMouseX();
+            float y = GetMouseY();
+            floor.particles.explodeNuggets({x,y}, WHITE, 0);
+        }
+
 
         // ======================================================== //
         // SECOND PASS - CREATING LIGHT MAP                         //
@@ -52,11 +62,12 @@ int main() {
         // {
             // 2D mode - where game is drawn to virtual screen
             BeginMode2D(gameCamera.camera);
-
+                ClearBackground(BLACK);
                 floor.drawBackground();
                 floor.platforms.drawPlatforms();   
                 floor.collectibles.drawCollectibles();
                 floor.enemies.drawEnemies();
+                floor.particles.drawParticles(floor);
                 floor.drawCompleteZone();       
                 player.drawPlayer();
                 player.drawBullets();

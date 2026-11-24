@@ -16,7 +16,8 @@ void Enemies::resetEnemies() {
         enemyArr[i].position.x = x;
         enemyArr[i].position.y = y;
         enemyArr[i].currentState = Enemy::State::IDLE;
-        enemyArr[i].currentHealth = enemyArr[i].startingHealth;
+        enemyArr[i].currentHealth = 10.0f;
+        //enemyArr[i].currentHealth = enemyArr[i].startingHealth;
         enemyArr[i].healthBarRect = {x-16.0f, y-32.0f, 32.0f, 10.0f};
     }
 }
