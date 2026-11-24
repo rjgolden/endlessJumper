@@ -19,7 +19,7 @@ void Particles::explodeNuggets(Vector2 pos, Color tint, int textureIndex) {
     for (int i{0}; i < 10; i++) {
         for (Particle& particle : particlesArr) {
             if (particle.life <= 0.0f) {
-                particle = {pos, {static_cast<float>(GetRandomValue(-100,100)), static_cast<float>(GetRandomValue(-100,100))}, tint, 1.0f, static_cast<float>(GetRandomValue(0, 360)), static_cast<float>(GetRandomValue(1,2)), textureIndex}; 
+                particle = {pos, {static_cast<float>(GetRandomValue(-100,100)), static_cast<float>(GetRandomValue(-100,100))}, tint, 1.0f, static_cast<float>(GetRandomValue(0, 360)), static_cast<float>(GetRandomValue(1,2)), textureIndex};
                 break;
             }
         }

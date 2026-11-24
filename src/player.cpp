@@ -9,7 +9,7 @@
 Player::Player() {
 
     constexpr std::array<const char*, Player::ANIMATION_COUNT> animationPaths = {{
-        "src/resources/Animations/playerIdle.png",
+        "src/resources/Animations/eyeball-Idle.png",
         "src/resources/Animations/eyeballMoveLeft.png",
         "src/resources/Animations/eyeballMoveRight.png",
         "src/resources/Animations/eyeballMoveUp.png",
@@ -19,9 +19,8 @@ Player::Player() {
     }};
 
     bulletTexture = LoadTexture("src/resources/bullet.png");
-    m_textures[0] = LoadTexture(animationPaths[0]);
-    m_animations[0] = AnimationClip{&m_textures[0], 16, 12.0f, true, false};
-    for (std::size_t i = 1; i < ANIMATION_COUNT; i++) {
+   
+    for (std::size_t i = 0; i < ANIMATION_COUNT; i++) {
         m_textures[i] = LoadTexture(animationPaths[i]);
         
         // AnimationClip fields: texture pointer, frame count, fps, loop, random.
@@ -467,25 +466,25 @@ void Player::checkBulletCollisions(Floor& floor){
         if(enemy.currentState == Enemy::State::DEAD) continue;
         for (int i = static_cast<int>(bullets.size()) - 1; i >= 0; --i) {    
             if(CheckCollisionCircles(enemy.position, enemy.radius, bullets[i].position, bullets[i].radius)){
-                
+
                 // Direction away from bullet
                 Vector2 direction = {enemy.position.x - bullets[i].position.x, enemy.position.y - bullets[i].position.y};
-
+                
                 // Normalize direction
                 float length = sqrtf(direction.x * direction.x + direction.y * direction.y);
-
+                
                 if (length > 0.001f) { direction.x /= length; direction.y /= length; } 
                 else direction = {enemy.position.x - bullets[i].position.x, enemy.position.y - bullets[i].position.y}; 
-            
+        
                 enemy.knockbackVelocity.x = direction.x * bullets[i].knockbackStrength;
                 enemy.knockbackVelocity.y = direction.y * bullets[i].knockbackStrength;
                 
-                // Remove bullet...
-                //TraceLog(LOG_INFO, "Hit!");
+                // Remove bullet...   
+                enemy.currentHealth -= bullets[i].damage;
                 bullets.erase(bullets.begin() + i);
                 bulletRects.erase(bulletRects.begin() + i);
-                enemy.currentHealth -= bullets[i].damage;
-                if(enemy.currentHealth <- 0.0f) {
+            
+                if(enemy.currentHealth <= 0.0f) {
                     //floor.particles.explode(enemy.position, RED, rand() % floor.particles.particleTextures.size()); //blood
                     floor.particles.explodeNuggets(enemy.position, WHITE, 0);
                     enemy.currentState = Enemy::State::DEAD;
