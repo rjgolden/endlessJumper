@@ -22,7 +22,7 @@ namespace Globals {
         Vector2 direction;
         float rotation{0.0f};
         float radius{10.0f};
-        float shotSpeed{600.0f};
+        float shotSpeed{300.0f};
         float knockbackStrength{300.0f};
         float damage{10.0f};
     };

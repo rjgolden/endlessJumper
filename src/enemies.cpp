@@ -16,7 +16,7 @@ void Enemies::resetEnemies() {
         enemyArr[i].position.x = x;
         enemyArr[i].position.y = y;
         enemyArr[i].currentState = Enemy::State::IDLE;
-        enemyArr[i].currentHealth = 10.0f;
+        enemyArr[i].currentHealth = 70.0f;
         //enemyArr[i].currentHealth = enemyArr[i].startingHealth;
         enemyArr[i].healthBarRect = {x-16.0f, y-32.0f, 32.0f, 10.0f};
     }
@@ -61,7 +61,7 @@ void Enemies::drawEnemies(){
          if(enemy.currentState == Enemy::State::DEAD) continue;
          DrawCircleLines(enemy.position.x, enemy.position.y, enemy.radius, RED);
          drawHealthBars(enemy);
-         DrawCircleLines(enemy.position.x, enemy.position.y, enemy.attackRadius, BLUE);
+         //DrawCircleLines(enemy.position.x, enemy.position.y, enemy.attackRadius, BLUE);
     }
 }
 
@@ -70,7 +70,7 @@ void Enemies::drawHealthBars(Enemy& enemy){
         DrawRectangle(enemy.position.x-16.0f, enemy.position.y-32.0f, enemy.healthBarRect.width, enemy.healthBarRect.height, GRAY);
         
         // Calculate health bar width based on current health
-        float healthWidth = (enemy.currentHealth / enemy.startingHealth) * enemy.healthBarRect.width;
+        float healthWidth = (enemy.currentHealth / enemy.maxHealth) * enemy.healthBarRect.width;
         
         // Draw health bar
         DrawRectangle(enemy.position.x-16.0f, enemy.position.y-32.0f, healthWidth, enemy.healthBarRect.height, RED);

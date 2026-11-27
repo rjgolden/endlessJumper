@@ -43,16 +43,16 @@ class Player {
         float width{32.0f};
         float height{32.0f};
 
-        float maxHorizontalVelocity{13.0f};
-        float maxUpVelocity{-30.0f};
-        float maxDownVelocity{60.0f};
+        float maxHorizontalVelocity{7.5f};
+        float maxUpVelocity{-15.0f};
+        float maxDownVelocity{30.0f};
 
         float leftHoldTime{};
         float rightHoldTime{};
         float jumpHoldTime{};
         float previousY{};
         
-        float airFriction{0.85f};
+        float airFriction{0.80f};
         float airAcceleration{0.6f};
         const float gravity{0.5f};
         const float groundAcceleration{0.9f};
@@ -81,7 +81,6 @@ class Player {
         bool shootingSW{};
         bool shootingNW{};
 
-
         bool jumpRequested{};
         bool canExtendJump{};
         bool isInAir{};
@@ -95,13 +94,16 @@ class Player {
         bool movingRight{};
         bool movingDown{};
         bool movingUp{};
-        bool isGlidingLeft{};
-        bool isGlidingRight{};
+        bool isSlidingLeft{};
+        bool isSlidingRight{};
         bool leftWallJumped{true};
         bool rightWallJumped{true};
 
-        enum class State {IDLE, LEFT, RIGHT, UP,
-                         ATTACK_LEFT,ATTACK_RIGHT,ATTACK_DOWN,
+        enum class State {IDLE, MOVE_LEFT, MOVE_RIGHT, 
+                         ATTACK_UP, ATTACK_LEFT, ATTACK_RIGHT, ATTACK_DOWN,
+                         SLIDE_LEFT, SLIDE_RIGHT,
+                         JUMP_LEFT, JUMP_RIGHT,
+                         FALL_LEFT, FALL_RIGHT,
                          COUNT};
 
         static constexpr std::size_t ANIMATION_COUNT = static_cast<std::size_t>(State::COUNT);

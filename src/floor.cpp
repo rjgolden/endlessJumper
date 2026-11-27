@@ -20,22 +20,28 @@ Floor::~Floor(){
     UnloadTexture(wallTile);
 }
 
-void Floor::drawBackground(){
+void Floor::drawBackground(GameCamera& gameCamera){
 
     ClearBackground(BLACK);
-     /*
+     
+    //DrawRectangle(Globals::leftEdge, -static_cast<int>(Globals::screenHeight)*10, Globals::middleWidth, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
+    float parallax = gameCamera.camera.target.y * 0.1f;
+    float backgroundPlacement = Globals::ceilingHeight;
+    for(int i{0}; i<12; i++){
+        DrawTextureEx(background, {0, backgroundPlacement - parallax}, 0.0f, 1.0f, WHITE);
+        backgroundPlacement += Globals::screenHeight;
+    }
     DrawRectangle(0, -static_cast<int>(Globals::screenHeight)*10, Globals::edgeWidth, static_cast<int>(Globals::screenHeight)*13, TAN);          // First  
-    DrawRectangle(Globals::leftEdge, -static_cast<int>(Globals::screenHeight)*10, Globals::middleWidth, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
     DrawRectangle(Globals::rightEdge, -static_cast<int>(Globals::screenHeight)*10, Globals::edgeWidth, static_cast<int>(Globals::screenHeight)*13, TAN);        // Last  
     DrawRectangle(Globals::leftEdge, static_cast<int>(Globals::floorY), Globals::middleWidth, static_cast<int>(Globals::floorHeight)*10, BLACK);                 // Floor
-    */
-    
+
+    /*
     float backgroundPlacement = Globals::ceilingHeight;
     for(int i{0}; i<12; i++){
         DrawTexture(background, 0, backgroundPlacement, WHITE);
         backgroundPlacement += Globals::screenHeight;
     }
-
+    
     float tilePlacement = Globals::ceilingHeight;
     for(int i{0}; i<15*13; i++){
         DrawTexture(wallTile, 0, tilePlacement, WHITE); // left side
@@ -45,10 +51,10 @@ void Floor::drawBackground(){
 
      DrawRectangle(Globals::leftEdge, static_cast<int>(Globals::floorY), 640, static_cast<int>(Globals::floorHeight)*10, BLACK); // Floor   
      DrawRectangle(0, Globals::ceilingHeight - Globals::floorHeight, static_cast<int>(Globals::screenWidth), Globals::floorHeight, RED); // End goal
-     
+     */
 }
 
-void Floor::resetGame(Player &player, GameCamera &gameCamera){
+void Floor::resetGame(Player& player, GameCamera& gameCamera){
 
     platforms.resetPlatforms();
     collectibles.resetCollectibles();

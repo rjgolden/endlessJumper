@@ -17,7 +17,7 @@ class Floor {
         Floor();
         ~Floor();
 
-        void drawBackground();
+        void drawBackground(GameCamera& gameCamera);
         void resetGame(Player &player, GameCamera &gameCamera);
         void update(Player& player, GameCamera& gameCamera);
         void drawCompleteZone();

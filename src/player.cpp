@@ -9,22 +9,27 @@
 Player::Player() {
 
     constexpr std::array<const char*, Player::ANIMATION_COUNT> animationPaths = {{
-        "src/resources/Animations/eyeball-Idle.png",
-        "src/resources/Animations/eyeballMoveLeft.png",
-        "src/resources/Animations/eyeballMoveRight.png",
-        "src/resources/Animations/eyeballMoveUp.png",
-        "src/resources/Animations/eyeball-attackleft.png",
-        "src/resources/Animations/eyeball-attackRight.png",
-        "src/resources/Animations/eyeball-attackDown.png"
+        "src/resources/Animations/playerIdle.png",
+        "src/resources/Animations/playerRunLeft.png",
+        "src/resources/Animations/playerRunRight.png",
+        "src/resources/Animations/playerAttackUp.png",
+        "src/resources/Animations/playerAttackLeft.png",
+        "src/resources/Animations/playerAttackRight.png",
+        "src/resources/Animations/playerAttackDown.png",
+        "src/resources/Animations/playerWallSlideLeft.png",
+        "src/resources/Animations/playerWallSlideRight.png",
+        "src/resources/Animations/playerJumpLeft.png",
+        "src/resources/Animations/playerJumpRight.png",
+        "src/resources/Animations/playerFallLeft.png",
+        "src/resources/Animations/playerFallRight.png"
     }};
 
     bulletTexture = LoadTexture("src/resources/bullet.png");
    
     for (std::size_t i = 0; i < ANIMATION_COUNT; i++) {
         m_textures[i] = LoadTexture(animationPaths[i]);
-        
-        // AnimationClip fields: texture pointer, frame count, fps, loop, random.
-        m_animations[i] = AnimationClip{&m_textures[i], 8, 12.0f, true, false};
+        int frameCount = m_textures[i].width / 32.0f;
+        m_animations[i] = AnimationClip{&m_textures[i], frameCount, 12.0f, true, false};
     }
     
 }
@@ -53,27 +58,6 @@ void Player::update(Floor& floor) {
     checkBulletCollisions(floor);
     updateAnimationState(); 
     animator.update(GetFrameTime());
-}
-
-void Player::updateAnimationState() {
-    State next = State::IDLE;
-
-    if (shootingUp)                         next = State::UP;
-    else if (shootingDown)                  next = State::ATTACK_DOWN;
-    else if (shootingLeft)                  next = State::ATTACK_LEFT;
-    else if (shootingRight)                 next = State::ATTACK_RIGHT;
-    else if (movingLeft || isGlidingLeft)   next = State::LEFT;
-    else if (movingRight || isGlidingRight) next = State::RIGHT;
-    else if (!isOnGround)                   next = State::UP;
-
-    setAnimationState(next);
-}
-
-void Player::setAnimationState(State newState) {
-    if (newState == currentState) return;
-
-    currentState = newState;
-    animator.play(m_animations[static_cast<std::size_t>(newState)]);
 }
 
 void Player::updateMovementDebug(){
@@ -114,7 +98,7 @@ void Player::updateMovement(){
 
     if (jumpPressed)
     {
-        if (isOnGround || isGlidingLeft || isGlidingRight)
+        if (isOnGround || isSlidingLeft || isSlidingRight)
         {
             canExtendJump = true;
             jumpHoldTime = 0.0f;
@@ -132,13 +116,13 @@ void Player::updateMovement(){
     if (jumpRequested)
     {
         // Ground jump
-        if (!isInAir && !isGlidingLeft && !isGlidingRight) velocity.y = -6.0f;
+        if (!isInAir && !isSlidingLeft && !isSlidingRight) velocity.y = -6.0f;
           
         // Double Jump
         //if (isInAir && !isGlidingLeft && !isGlidingRight && ) velocity.y = -6.0f;
 
         // Left wall jump
-        else if (isGlidingLeft  && leftWallJumped)
+        else if (isSlidingLeft  && leftWallJumped)
         {
             velocity.y = -16.0f;
             velocity.x += 12.0f;
@@ -151,7 +135,7 @@ void Player::updateMovement(){
         }
 
         // Right wall jump
-        else if (isGlidingRight && rightWallJumped)
+        else if (isSlidingRight && rightWallJumped)
         {
             velocity.y = -16.0f;
             velocity.x -= 12.0f;
@@ -182,34 +166,34 @@ void Player::updateMovement(){
     // GROUND CONTROL     //
     // ================== //
 
-    if (movingRight && (rightHoldTime > movementPressDelay) && !isGlidingRight && isOnGround)
+    if (movingRight && (rightHoldTime > movementPressDelay) && !isSlidingRight && isOnGround)
     {
         appliedForces.x += groundAcceleration;
-        isGlidingLeft = false;
+        isSlidingLeft = false;
     }
 
-    if (movingLeft && (leftHoldTime > movementPressDelay) && !isGlidingLeft && isOnGround)
+    if (movingLeft && (leftHoldTime > movementPressDelay) && !isSlidingLeft && isOnGround)
     {
         appliedForces.x -= groundAcceleration;
-        isGlidingRight = false;
+        isSlidingRight = false;
     }
 
     // ================== //
     // AIR CONTROL        //
     // ================== //
 
-    if (movingRight && (rightHoldTime > movementPressDelay) && !isGlidingRight && !isOnGround)
+    if (movingRight && (rightHoldTime > movementPressDelay) && !isSlidingRight && !isOnGround)
     {
         if(isWallJumping) appliedForces.x += airAcceleration - airFriction;
         appliedForces.x += airAcceleration;
-        isGlidingLeft = false;
+        isSlidingLeft = false;
     }
 
-    if (movingLeft && (leftHoldTime > movementPressDelay) && !isGlidingLeft && !isOnGround)
+    if (movingLeft && (leftHoldTime > movementPressDelay) && !isSlidingLeft && !isOnGround)
     {   
         if(isWallJumping) appliedForces.x -= airAcceleration - airFriction;
         appliedForces.x -= airAcceleration;
-        isGlidingRight = false;
+        isSlidingRight = false;
     }
 
     // ================== //
@@ -227,7 +211,7 @@ void Player::updateMovement(){
     float horizontalFriction = isOnGround ? groundFriction : airFriction;
     float verticalFriction = 1.0f;
 
-    if (isGlidingLeft || isGlidingRight)
+    if (isSlidingLeft || isSlidingRight)
     {
         if (velocity.y <= 0.0f)
         {
@@ -264,8 +248,8 @@ void Player::checkCollisions(Floor& floor) {
     // ======================//
 
     isOnGround = false;
-    isGlidingLeft = false;
-    isGlidingRight = false;
+    isSlidingLeft = false;
+    isSlidingRight = false;
 
     const float halfWidth = width / 2.0f;
     const float halfHeight = height / 2.0f;
@@ -337,7 +321,7 @@ void Player::checkCollisions(Floor& floor) {
         position.x = 176.0f;
         velocity.x = 0.0f;
 
-        if (!isOnGround) isGlidingLeft = true;
+        if (!isOnGround) isSlidingLeft = true;
     }
 
     // ================== //
@@ -349,7 +333,7 @@ void Player::checkCollisions(Floor& floor) {
         position.x = 784.0f;
         velocity.x = 0.0f;
 
-        if (!isOnGround) isGlidingRight = true;
+        if (!isOnGround) isSlidingRight = true;
     }
 
     // ================== //
@@ -399,35 +383,27 @@ void Player::shootBullets(){
         Vector2 direction{0.0f, 0.0f};
 
         if (shootingUp){
-            bulletRotation = 90.0f;
             direction = {0.0f, -1.0f};
         }
         else if (shootingDown){
-            bulletRotation = 270.0f;
             direction = {0.0f, 1.0f};
         }
         else if (shootingLeft){
-            bulletRotation = 180.0f;
             direction = {-1.0f, 0.0f};
         }
         else if (shootingRight){
-            bulletRotation = 0.0f;
             direction = {1.0f, 0.0f};
         }
         else if (shootingNE){
-            bulletRotation = 90.0f;
             direction = {1.0f, -1.0f};
         }
         else if (shootingSE){
-            bulletRotation = 270.0f;
             direction = {1.0f, 1.0f};
         }
         else if (shootingSW){
-            bulletRotation = 180.0f;
             direction = {-1.0f, 1.0f};
         }
         else if (shootingNW){
-            bulletRotation = 0.0f;
             direction = {-1.0f, -1.0f};
         }
 
@@ -465,7 +441,7 @@ void Player::checkBulletCollisions(Floor& floor){
     for(Enemy& enemy : floor.enemies.enemyArr){
         if(enemy.currentState == Enemy::State::DEAD) continue;
         for (int i = static_cast<int>(bullets.size()) - 1; i >= 0; --i) {    
-            if(CheckCollisionCircles(enemy.position, enemy.radius, bullets[i].position, bullets[i].radius)){
+            if(CheckCollisionCircles(enemy.position, enemy.radius, {bullets[i].position.x, bullets[i].position.y + 8.0f}, bullets[i].radius)){
 
                 // Direction away from bullet
                 Vector2 direction = {enemy.position.x - bullets[i].position.x, enemy.position.y - bullets[i].position.y};
@@ -549,6 +525,33 @@ void Player::getShootingInputController() {
     else if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) shootingRight = true;
 }
 
+void Player::updateAnimationState() {
+    State next = State::IDLE;
+
+    if (shootingUp)                         next = State::ATTACK_UP;
+    else if (shootingDown)                  next = State::ATTACK_DOWN;
+    else if (isSlidingLeft)                 next = State::SLIDE_LEFT;
+    else if (isSlidingRight)                next = State::SLIDE_RIGHT;
+    else if (shootingLeft && !isSlidingLeft)  next = State::ATTACK_LEFT;
+    else if (shootingRight && !isSlidingRight) next = State::ATTACK_RIGHT;
+    else if (movingLeft && isInAir && velocity.y >= 0.0f)  next = State::FALL_LEFT;
+    else if (movingRight && isInAir && velocity.y >= 0.0f)  next = State::FALL_RIGHT;
+    else if(isInAir && velocity.y >= 0.0f)  next = State::FALL_RIGHT;
+    else if (movingLeft && isInAir)         next = State::JUMP_LEFT;
+    else if (movingRight && isInAir)        next = State::JUMP_RIGHT;
+    else if (movingLeft)                    next = State::MOVE_LEFT;
+    else if (movingRight)                   next = State::MOVE_RIGHT;
+
+    setAnimationState(next);
+}
+
+void Player::setAnimationState(State newState) {
+    if (newState == currentState) return;
+
+    currentState = newState;
+    animator.play(m_animations[static_cast<std::size_t>(newState)]);
+}
+
 void Player::drawPlayer() {
     AnimationClip& clip = m_animations[static_cast<int>(currentState)];
 
@@ -560,12 +563,13 @@ void Player::drawPlayer() {
 }
 
 void Player::drawBullets() {
+    /*
     for (const auto& bullet : bullets)
-        DrawCircleLines(bullet.position.x, bullet.position.y, bullet.radius, BLUE);
-
+        DrawCircleLines(bullet.position.x, bullet.position.y + 8.0f, bullet.radius, BLUE);
+    */
     for (auto& bullet : bullets) {
-        bullet.rotation += 2.0;
-        if(bullet.rotation > 360.0f) bullet.rotation = 0.0f;
-        DrawTextureEx(bulletTexture, bullet.position, bullet.rotation, 1.0f, WHITE);
+        //bullet.rotation += 2.0f;
+        //if(bullet.rotation > 360.0f) bullet.rotation = 0.0f;
+        DrawTextureEx(bulletTexture, {bullet.position.x - 8.0f, bullet.position.y}, bullet.rotation, 1.0f, WHITE);
     }
 }

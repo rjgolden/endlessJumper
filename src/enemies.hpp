@@ -12,7 +12,7 @@ struct Enemy {
     State currentState{State::CHASE}; 
     float radius{16.0f};
     float attackRadius{270.0f};
-    float startingHealth{70.0f};
+    float maxHealth{70.0f};
     float currentHealth{};
 };
 
