@@ -2,11 +2,26 @@
 #include <cmath>
 
 Enemies::Enemies(){
+    
+    TraceLog(LOG_INFO, "Enemies constructor called");
+    constexpr std::array<const char*, Enemies::ANIMATION_COUNT> animationPaths = {{
+        "src/resources/Animations/flyEnemy.png",
+        "src/resources/Animations/flyEnemy.png",
+        "src/resources/Animations/flyEnemy.png"
+    }};
+
+    for (std::size_t i = 0; i < ANIMATION_COUNT; i++) {
+        m_textures[i] = LoadTexture(animationPaths[i]);
+        int frameCount = m_textures[i].width / 16.0f;
+        m_animations[i] = AnimationClip{&m_textures[i], frameCount, 12.0f, true, false};
+    }
     resetEnemies();
 }
 
-void update(){
-    // TODO
+Enemies::~Enemies(){
+     for (Texture2D& texture : m_textures) {
+        if (texture.id != 0) UnloadTexture(texture);
+    }
 }
 
 void Enemies::resetEnemies() {
@@ -17,12 +32,12 @@ void Enemies::resetEnemies() {
         enemyArr[i].position.y = y;
         enemyArr[i].currentState = Enemy::State::IDLE;
         enemyArr[i].currentHealth = 70.0f;
-        //enemyArr[i].currentHealth = enemyArr[i].startingHealth;
         enemyArr[i].healthBarRect = {x-16.0f, y-32.0f, 32.0f, 10.0f};
+        enemyArr[i].animator.play(m_animations[0]);
     }
 }
 
-void Enemies::chasePlayer(Vector2 playerPosition){
+void Enemies::chasePlayer(Vector2 &playerPosition){
     float deltaTime = GetFrameTime();
      for (Enemy& enemy : enemyArr) {
 
@@ -52,16 +67,28 @@ void Enemies::chasePlayer(Vector2 playerPosition){
         // Knockback decay
         float decay = std::exp(-8.0f * deltaTime);
         enemy.knockbackVelocity.x *= decay;
-        enemy.knockbackVelocity.y *= decay;
+        enemy.knockbackVelocity.y *= decay; 
+
     }
 }
 
 void Enemies::drawEnemies(){
+   
+    TraceLog(LOG_INFO, "drawEnemies called");
+
     for (Enemy& enemy : enemyArr) {
          if(enemy.currentState == Enemy::State::DEAD) continue;
-         DrawCircleLines(enemy.position.x, enemy.position.y, enemy.radius, RED);
+        
+         AnimationClip& clip = m_animations[static_cast<int>(enemy.currentState)];
+        if (clip.texture && clip.texture->id != 0 && clip.frameCount > 0) {
+            float frameWidth = static_cast<float>(clip.texture->width) / clip.frameCount;
+            float frameHeight = static_cast<float>(clip.texture->height);
+            enemy.animator.draw({enemy.position.x - frameWidth * 0.5f, enemy.position.y - frameHeight * 0.5f});
+        }
+
          drawHealthBars(enemy);
-         //DrawCircleLines(enemy.position.x, enemy.position.y, enemy.attackRadius, BLUE);
+         //DrawCircleLines(enemy.position.x, enemy.position.y, enemy.radius, RED); // hitbox
+         //DrawCircleLines(enemy.position.x, enemy.position.y, enemy.attackRadius, BLUE); // attack radius
     }
 }
 
@@ -75,4 +102,25 @@ void Enemies::drawHealthBars(Enemy& enemy){
         // Draw health bar
         DrawRectangle(enemy.position.x-16.0f, enemy.position.y-32.0f, healthWidth, enemy.healthBarRect.height, RED);
         DrawRectangleLines(enemy.position.x-16.0f, enemy.position.y-32.0f, enemy.healthBarRect.width, enemy.healthBarRect.height, BLACK);
+}
+
+void Enemies::updateAnimationState() {
+    for(Enemy& enemy : enemyArr){
+        if (enemy.currentState == Enemy::State::DEAD) continue;
+        Enemy::State next = Enemy::State::CHASE;
+        //set states here s
+        setAnimationState(next, enemy);
+        enemy.animator.update(GetFrameTime());
+    }
+}
+
+void Enemies::setAnimationState(Enemy::State newState, Enemy& enemy) {
+    if (newState == enemy.currentState) return;
+    enemy.currentState = newState;
+    enemy.animator.play(m_animations[static_cast<std::size_t>(newState)]);
+}
+
+void Enemies::update(Vector2 &playerPosition){
+    chasePlayer(playerPosition);
+    updateAnimationState(); 
 }

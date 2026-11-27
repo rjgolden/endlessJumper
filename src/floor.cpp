@@ -100,7 +100,7 @@ void Floor::update(Player& player, GameCamera& gameCamera){
             score -= 5.0f;
     }
 
-    enemies.chasePlayer(player.position);
+    enemies.update(player.position);
     
     // Follow target or player 
     gameCamera.camera.target.y += (targetY - gameCamera.camera.target.y) * (followSpeed * deltaTime);
