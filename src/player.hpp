@@ -7,9 +7,8 @@
 #include "globals.hpp"
 #include "animator.hpp"
 
-class Collectible;
-class Platform;
 class Floor;
+class GameCamera;
 
 class Player {
 
@@ -18,10 +17,10 @@ class Player {
         Player();
         ~Player();
 
-        void update(Floor& floor);
+        void update(Floor& floor, GameCamera& gameCamera);
         void updateMovement();
         void updateMovementDebug();
-        void checkCollisions(Floor& floor);
+        void checkCollisions(Floor& floor, GameCamera& gameCamera);
         void shootBullets();
         void checkBulletCollisions(Floor& floor);
 
@@ -37,6 +36,7 @@ class Player {
         Vector2 velocity{};
 
         bool debugMovement{false};
+        bool inDoorArea{};
 
     private:
 
@@ -91,6 +91,7 @@ class Player {
         bool isWallJumping{};
         
         bool lastDirection{}; // false = left, true = right
+        bool touchingDoor{};
         bool movingLeft{};
         bool movingRight{};
         bool movingDown{};

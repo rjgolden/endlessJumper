@@ -16,12 +16,12 @@ class Animator {
         void play(AnimationClip& clip);
         void update(float deltaTime);
         void draw(Vector2 position, float rotation = 0.0f);
-        bool isFinished() { return m_finished; }
+        bool isFinished() { return finished; }
 
     private:
        
-        AnimationClip* m_currentClip{nullptr};
-        int m_currentFrame{0};
-        float m_runningTime{0.0f};
-        bool m_finished{false};
+        AnimationClip* currentClip{nullptr};
+        int currentFrame{0};
+        float runningTime{0.0f};
+        bool finished{false};
 };

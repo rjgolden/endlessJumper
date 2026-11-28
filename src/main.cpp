@@ -29,7 +29,7 @@ int main() {
         // ======================================================= //
 
         floor.update(player, gameCamera);
-        player.update(floor);
+        player.update(floor, gameCamera);
 
         
         if(IsMouseButtonPressed(1)) {
@@ -62,10 +62,11 @@ int main() {
         // {
             // 2D mode - where game is drawn to virtual screen
             BeginMode2D(gameCamera.camera);
-            
+
                 ClearBackground(BLACK);
                 floor.drawBackground(gameCamera);
-                floor.platforms.drawPlatforms();   
+                floor.platforms.drawPlatforms();
+                floor.doors.drawDoors();
                 floor.collectibles.drawCollectibles();
                 floor.enemies.drawEnemies();
                 floor.particles.drawParticles(floor);

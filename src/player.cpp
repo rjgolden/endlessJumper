@@ -42,14 +42,14 @@ Player::~Player() {
     if (bulletTexture.id != 0) UnloadTexture(bulletTexture);
 }
 
-void Player::update(Floor& floor) {
+void Player::update(Floor& floor,  GameCamera& gameCamera) {
     
     if(debugMovement) {
         updateMovementDebug();
     }   
     else{
         updateMovement();
-        checkCollisions(floor);
+        checkCollisions(floor, gameCamera);
     }
     
     getShootingInputKeyboard();
@@ -248,7 +248,7 @@ void Player::updateMovement(){
 
 }
 
-void Player::checkCollisions(Floor& floor) {
+void Player::checkCollisions(Floor& floor,  GameCamera& gameCamera) {
     // ======================//
     // RESET COLLISION STATE //
     // ======================//
@@ -322,7 +322,7 @@ void Player::checkCollisions(Floor& floor) {
     // LEFT WALL          //
     // ================== //
     
-    if (position.x - halfWidth <= Globals::leftEdge)
+    if (position.x - halfWidth <= Globals::leftEdge && !touchingDoor && !inDoorArea)
     {
         position.x = 176.0f;
         velocity.x = 0.0f;
@@ -346,7 +346,7 @@ void Player::checkCollisions(Floor& floor) {
     // CEILING            //
     // ================== //
 
-    if (position.y - halfHeight <= Globals::ceilingHeight)
+    if (position.y <= Globals::ceilingHeight)
     {
         position.y = Globals::ceilingHeight;
 
@@ -367,6 +367,10 @@ void Player::checkCollisions(Floor& floor) {
         }
     }
     
+    // ================== //
+    // PARTICLES          //
+    // ================== //
+
     for (Particle& particle : floor.particles.particlesArr) {
         if (particle.life <= 0.0f) continue;
         bool check = CheckCollisionCircleRec(particle.pos, 16.0f, {position.x, position.y, width, height});
@@ -376,6 +380,68 @@ void Player::checkCollisions(Floor& floor) {
             floor.score += 2 * particle.scale;
         }
     }
+
+    // ================== //
+    // DOORS              //
+    // ================== //
+    /*
+    for (Door& door : floor.doors.doorArr) {
+        bool check = CheckCollisionRecs({door.hitbox.x, door.hitbox.y, door.hitbox.width, door.hitbox.height}, 
+                                         {position.x-16.0f, position.y-16.0f, width, height});
+        if(check) {
+            TraceLog(LOG_INFO, "Touching Door");
+            position.x -= Globals::screenWidth;
+            gameCamera.camera.target.x -= Globals::screenWidth;
+            door.color = GREEN;
+            touchingDoor = true;
+            inDoorArea = true;
+        }
+        else {
+            door.color = RED;
+            touchingDoor = false;
+        }
+    }
+    */
+
+    // entry door
+    bool entry = CheckCollisionRecs({floor.doors.doorArr[0].hitbox.x, floor.doors.doorArr[0].hitbox.y, floor.doors.doorArr[0].hitbox.width, floor.doors.doorArr[0].hitbox.height}, 
+                                    {position.x-16.0f, position.y-16.0f, width, height});
+
+    if(entry) {
+        if(movingLeft) {
+            TraceLog(LOG_INFO, "Entering room");
+            position.x = floor.doors.doorArr[1].hitbox.x - 16.0f;
+            gameCamera.camera.target.x -= Globals::screenWidth;
+            inDoorArea = true;
+        }
+        floor.doors.doorArr[0].color = GREEN;
+        touchingDoor = true;
+    }
+    else {
+        floor.doors.doorArr[0].color = RED;
+        touchingDoor = false;
+    }
+
+    // exit door
+    bool exit = CheckCollisionRecs({floor.doors.doorArr[1].hitbox.x, floor.doors.doorArr[1].hitbox.y, floor.doors.doorArr[1].hitbox.width, floor.doors.doorArr[1].hitbox.height}, 
+                                   {position.x-16.0f, position.y-16.0f, width, height});
+                                      
+    if(exit) {
+        TraceLog(LOG_INFO, "Exiting room");
+        if(movingRight) {
+            position.x = floor.doors.doorArr[0].hitbox.x + 48.0f;
+            gameCamera.camera.target.x += Globals::screenWidth;
+            inDoorArea = false;
+        }
+        floor.doors.doorArr[1].color = GREEN;
+        touchingDoor = true;
+        
+    }
+    else {
+        floor.doors.doorArr[1].color = RED;
+        touchingDoor = false;
+    }
+
 }
 
 void Player::shootBullets(){
@@ -471,7 +537,6 @@ void Player::checkBulletCollisions(Floor& floor){
                     floor.particles.explodeNuggets(enemy.position, WHITE, 0);
                     enemy.currentState = Enemy::State::DEAD;
                 }
-                continue;  
             }
         }
     }
@@ -566,6 +631,8 @@ void Player::drawPlayer() {
         float frameHeight = static_cast<float>(clip.texture->height);
         animator.draw({position.x - frameWidth * 0.5f, position.y - frameHeight * 0.5f});
     }
+    DrawRectangleLines(position.x-16.0f, position.y-16.0f, 32.0f, 32.0f, RED);
+
 }
 
 void Player::drawBullets() {

@@ -10,6 +10,7 @@ Floor::Floor(){
     target = LoadRenderTexture(Globals::screenWidth, Globals::screenHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT); 
     background = LoadTexture("src/resources/background.png");
+    shopBackground = LoadTexture("src/resources/shopBackground.png");
     wallTile = LoadTexture("src/resources/wallTile.png");
 }
 
@@ -17,13 +18,14 @@ Floor::~Floor(){
     UnloadRenderTexture(lightMap);
     UnloadRenderTexture(target);
     UnloadTexture(background);
+    UnloadTexture(shopBackground);
     UnloadTexture(wallTile);
 }
 
 void Floor::drawBackground(GameCamera& gameCamera){
 
     ClearBackground(BLACK);
-     
+    DrawTextureEx(shopBackground, {-Globals::screenWidth, 0}, 0.0f, 1.0f, WHITE);
     //DrawRectangle(Globals::leftEdge, -static_cast<int>(Globals::screenHeight)*10, Globals::middleWidth, static_cast<int>(Globals::screenHeight)*13, LIGHTGREEN); // Middle    
     float parallax = gameCamera.camera.target.y * 0.1f;
     float backgroundPlacement = Globals::ceilingHeight;
@@ -103,7 +105,11 @@ void Floor::update(Player& player, GameCamera& gameCamera){
     enemies.update(player.position);
     
     // Follow target or player 
-    gameCamera.camera.target.y += (targetY - gameCamera.camera.target.y) * (followSpeed * deltaTime);
+    if(player.debugMovement){
+        gameCamera.camera.target.x += (player.position.x - gameCamera.camera.target.x) * deltaTime;
+        gameCamera.camera.target.y += (player.position.y - gameCamera.camera.target.y) * deltaTime;
+    }
+    else if(!player.inDoorArea)  gameCamera.camera.target.y += (targetY - gameCamera.camera.target.y) * (followSpeed * deltaTime);
 }
 
 float Floor::getEndHeight(){

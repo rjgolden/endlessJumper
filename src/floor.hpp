@@ -6,6 +6,7 @@
 #include "functions.hpp"
 #include "enemies.hpp"
 #include "particles.hpp"
+#include "doors.hpp"
 
 class Player;
 class GameCamera;
@@ -32,6 +33,7 @@ class Floor {
         Collectibles collectibles;
         Enemies enemies;
         Particles particles;
+        Doors doors;
         //hazards hazards;
 
         RenderTexture2D lightMap;
@@ -45,6 +47,7 @@ class Floor {
        
         Rectangle completeZone{0, endHeight, Globals::screenWidth, 64.0f};
         Texture2D background;
+        Texture2D shopBackground;
         Texture2D wallTile;
 
 };
