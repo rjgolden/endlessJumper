@@ -412,6 +412,7 @@ void Player::checkCollisions(Floor& floor,  GameCamera& gameCamera) {
             TraceLog(LOG_INFO, "Entering room");
             position.x = floor.doors.doorArr[1].hitbox.x - 16.0f;
             gameCamera.camera.target.x -= Globals::screenWidth;
+            gameCamera.camera.target.y = (Globals::screenHeight/2);
             inDoorArea = true;
         }
         floor.doors.doorArr[0].color = GREEN;
@@ -431,6 +432,7 @@ void Player::checkCollisions(Floor& floor,  GameCamera& gameCamera) {
         if(movingRight) {
             position.x = floor.doors.doorArr[0].hitbox.x + 48.0f;
             gameCamera.camera.target.x += Globals::screenWidth;
+            gameCamera.camera.target.y = (Globals::screenHeight/2);
             inDoorArea = false;
         }
         floor.doors.doorArr[1].color = GREEN;
