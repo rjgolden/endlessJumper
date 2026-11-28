@@ -25,7 +25,7 @@ class Platforms {
     private:
 
         float spacing{40.0f};
-        float platformHeight{10.0f};
+        float platformHeight{32.0f};
         Color platformColor{};
 
 };

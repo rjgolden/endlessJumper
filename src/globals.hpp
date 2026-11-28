@@ -7,7 +7,7 @@ namespace Globals {
     constexpr int halfScreenHeight{270};
     constexpr int platformCount{84};
     constexpr int collectibleCount{20};
-    constexpr int enemyCount{5};
+    constexpr int enemyCount{1};
     constexpr float referenceFPS{60.0f};
     constexpr float floorHeight{40.0f};
     constexpr float leftEdge{160.0f};

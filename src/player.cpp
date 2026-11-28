@@ -132,7 +132,7 @@ void Player::updateMovement(){
             rightWallJumped = true;
             isWallJumping = true;
             
-            airFriction = 0.95f;
+            airFriction = 0.99f;
         }
 
         // Right wall jump
@@ -145,7 +145,7 @@ void Player::updateMovement(){
             leftWallJumped = true;
             isWallJumping = true;
             
-            airFriction = 0.95f;
+            airFriction = 0.99f;
         }
 
         isInAir = true;
@@ -236,6 +236,11 @@ void Player::updateMovement(){
     // ================== //
 
     if (appliedForces.x == 0.0f && std::abs(velocity.x) < 1.0f) velocity.x = 0.0f;
+
+    if(velocity.x > maxHorizontalVelocity) velocity.x = maxHorizontalVelocity;
+    if(velocity.x < -maxHorizontalVelocity) velocity.x = -maxHorizontalVelocity;
+    if(velocity.y > maxDownVelocity) velocity.y = maxDownVelocity;
+    if(velocity.y < -maxDownVelocity) velocity.y = -maxDownVelocity;
 
     position.x += velocity.x * frameScale;
     previousY = position.y;

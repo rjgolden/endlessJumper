@@ -62,6 +62,7 @@ int main() {
         // {
             // 2D mode - where game is drawn to virtual screen
             BeginMode2D(gameCamera.camera);
+            
                 ClearBackground(BLACK);
                 floor.drawBackground(gameCamera);
                 floor.platforms.drawPlatforms();   

@@ -45,15 +45,15 @@ class Player {
 
         float maxHorizontalVelocity{7.5f};
         float maxUpVelocity{-15.0f};
-        float maxDownVelocity{25.0f};
+        float maxDownVelocity{15.0f};
 
         float leftHoldTime{};
         float rightHoldTime{};
         float jumpHoldTime{};
         float previousY{};
         
-        float airFriction{0.80f};
-        float airAcceleration{0.5f};
+        float airFriction{0.85f};
+        float airAcceleration{0.6f};
         const float gravity{0.5f};
         const float groundAcceleration{0.7f};
         const float groundFriction{0.75f};
@@ -62,7 +62,7 @@ class Player {
 
         const float movementPressDelay{5.0f / Globals::referenceFPS}; // 5 frames/sec
         const float maxJumpHoldTime{14.0f / Globals::referenceFPS};
-        const float jumpHoldForce{0.7f};
+        const float jumpHoldForce{0.6f};
         
         std::vector<Globals::Projectile> bullets;
         std::vector<Rectangle> bulletRects;
