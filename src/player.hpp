@@ -45,7 +45,7 @@ class Player {
 
         float maxHorizontalVelocity{7.5f};
         float maxUpVelocity{-15.0f};
-        float maxDownVelocity{30.0f};
+        float maxDownVelocity{25.0f};
 
         float leftHoldTime{};
         float rightHoldTime{};
@@ -53,9 +53,9 @@ class Player {
         float previousY{};
         
         float airFriction{0.80f};
-        float airAcceleration{0.6f};
+        float airAcceleration{0.5f};
         const float gravity{0.5f};
-        const float groundAcceleration{0.9f};
+        const float groundAcceleration{0.7f};
         const float groundFriction{0.75f};
         const float wallRiseFriction{1.00f};
         const float wallFallFriction{0.70f};
@@ -90,6 +90,7 @@ class Player {
         bool jumpReleased{};
         bool isWallJumping{};
         
+        bool lastDirection{}; // false = left, true = right
         bool movingLeft{};
         bool movingRight{};
         bool movingDown{};
@@ -99,7 +100,7 @@ class Player {
         bool leftWallJumped{true};
         bool rightWallJumped{true};
 
-        enum class State {IDLE, MOVE_LEFT, MOVE_RIGHT, 
+        enum class State {IDLE_LEFT, IDLE_RIGHT, MOVE_LEFT, MOVE_RIGHT, 
                          ATTACK_UP, ATTACK_LEFT, ATTACK_RIGHT, ATTACK_DOWN,
                          SLIDE_LEFT, SLIDE_RIGHT,
                          JUMP_LEFT, JUMP_RIGHT,
@@ -114,5 +115,5 @@ class Player {
         std::array<Texture2D, ANIMATION_COUNT> m_textures{};
         std::array<AnimationClip, ANIMATION_COUNT> m_animations{};
         Animator animator;
-        State currentState{State::IDLE};
+        State currentState{State::IDLE_RIGHT};
 };

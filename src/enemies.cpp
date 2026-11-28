@@ -31,7 +31,7 @@ void Enemies::resetEnemies() {
         enemyArr[i].position.x = x;
         enemyArr[i].position.y = y;
         enemyArr[i].currentState = Enemy::State::IDLE;
-        enemyArr[i].currentHealth = 70.0f;
+        enemyArr[i].currentHealth = enemyArr[i].maxHealth;
         enemyArr[i].healthBarRect = {x-16.0f, y-32.0f, 32.0f, 10.0f};
         enemyArr[i].animator.play(m_animations[0]);
     }
@@ -74,8 +74,6 @@ void Enemies::chasePlayer(Vector2 &playerPosition){
 
 void Enemies::drawEnemies(){
    
-    TraceLog(LOG_INFO, "drawEnemies called");
-
     for (Enemy& enemy : enemyArr) {
          if(enemy.currentState == Enemy::State::DEAD) continue;
         

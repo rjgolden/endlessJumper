@@ -9,7 +9,8 @@
 Player::Player() {
 
     constexpr std::array<const char*, Player::ANIMATION_COUNT> animationPaths = {{
-        "src/resources/Animations/playerIdle.png",
+        "src/resources/Animations/playerIdleLeft.png",
+        "src/resources/Animations/playerIdleRight.png",
         "src/resources/Animations/playerRunLeft.png",
         "src/resources/Animations/playerRunRight.png",
         "src/resources/Animations/playerAttackUp.png",
@@ -86,10 +87,10 @@ void Player::updateMovement(){
     // L+R KEY HOLD TIMES //
     // ================== //
 
-    if (movingRight) rightHoldTime += deltaTime;
+    if (movingRight) {rightHoldTime += deltaTime; lastDirection = true;}
     else rightHoldTime = 0.0f;
 
-    if (movingLeft) leftHoldTime += deltaTime;
+    if (movingLeft) {leftHoldTime += deltaTime; lastDirection = false;}
     else leftHoldTime = 0.0f;
 
     // ================== //
@@ -526,7 +527,7 @@ void Player::getShootingInputController() {
 }
 
 void Player::updateAnimationState() {
-    State next = State::IDLE;
+    State next = lastDirection ? State::IDLE_RIGHT : State::IDLE_LEFT;
 
     if (shootingUp)                         next = State::ATTACK_UP;
     else if (shootingDown)                  next = State::ATTACK_DOWN;
@@ -539,7 +540,7 @@ void Player::updateAnimationState() {
     else if(isInAir && velocity.y >= 0.0f)  next = State::FALL_RIGHT;
     else if (movingLeft && isInAir)         next = State::JUMP_LEFT;
     else if (movingRight && isInAir)        next = State::JUMP_RIGHT;
-    else if (movingLeft)                    next = State::MOVE_LEFT;
+    else if (movingLeft)                    next = State::MOVE_LEFT; 
     else if (movingRight)                   next = State::MOVE_RIGHT;
 
     setAnimationState(next);
